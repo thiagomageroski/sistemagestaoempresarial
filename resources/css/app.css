@@ -1,0 +1,32 @@
+/* --- Fontes (opcional, mas recomendado) --- */
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+/* --- Tailwind v4 --- */
+@import 'tailwindcss';
+
+/* Paths a varrer para geração das classes utilitárias (Tailwind v4) */
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* Tema Tailwind (exemplo) */
+@theme {
+  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* --- Bootstrap via NPM --- */
+/* Dica: importar a versão CSS dá mais controle caso queira customizações.
+   Se preferir CSS direto, troque por:  @import 'bootstrap/dist/css/bootstrap.min.css'; */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* --- Estilos globais --- */
+body {
+  font-family: 'Figtree', var(--font-sans), sans-serif;
+  background-color: #ffffff;
+}
+
+/* Exemplo de utilitário/override leve: */
+.navbar-brand { letter-spacing: .5px; }
+.card { border-radius: .8rem; }
