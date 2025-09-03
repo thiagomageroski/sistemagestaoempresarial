@@ -31,11 +31,13 @@ class HomeController extends Controller
         return view('pages.sobre');
     }
 
-    public function cadastro(Request $request)
+    public function cadastro()
     {
-        // Verifica se há uma mensagem de redirecionamento
-        $error = $request->session()->get('error');
-        
-        return view('pages.cadastro', compact('error'));
+        return view('pages.cadastro');
+    }
+
+    public function login()
+    {
+        return view('pages.login'); // ← Novo método
     }
 }

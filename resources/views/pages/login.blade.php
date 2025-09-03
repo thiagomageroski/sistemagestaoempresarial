@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Sistema de Gestão</title>
+    <title>Login - Sistema de Gestão</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -47,13 +47,13 @@
             padding: 2rem;
         }
 
-        .registration-container {
+        .login-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 450px;
             animation: fadeInUp 0.8s ease;
         }
 
-        .registration-card {
+        .login-card {
             background: white;
             border-radius: var(--border-radius-lg);
             box-shadow: var(--card-shadow);
@@ -61,7 +61,7 @@
             transition: var(--transition);
         }
 
-        .registration-card:hover {
+        .login-card:hover {
             box-shadow: var(--card-shadow-hover);
         }
 
@@ -87,7 +87,7 @@
 
         .card-title {
             font-weight: 800;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 0.5rem;
             position: relative;
             z-index: 2;
@@ -105,13 +105,6 @@
         }
 
         /* Formulário */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -174,12 +167,10 @@
         .submit-container {
             text-align: center;
             margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--gray-light);
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), var(--success-dark));
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             border: none;
             border-radius: var(--border-radius);
@@ -191,12 +182,12 @@
             gap: 0.75rem;
             transition: var(--transition);
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(6, 214, 160, 0.3);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
             position: relative;
             overflow: hidden;
         }
 
-        .btn-success::before {
+        .btn-primary::before {
             content: '';
             position: absolute;
             top: 0;
@@ -207,12 +198,12 @@
             transition: var(--transition);
         }
 
-        .btn-success:hover {
+        .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(6, 214, 160, 0.4);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
         }
 
-        .btn-success:hover::before {
+        .btn-primary:hover::before {
             left: 100%;
         }
 
@@ -248,6 +239,33 @@
 
         .auth-links a:hover::after {
             width: 100%;
+        }
+
+        /* Checkbox lembrar */
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .form-check-input {
+            width: 1.1em;
+            height: 1.1em;
+            border-radius: 4px;
+            border: 2px solid var(--gray-light);
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            cursor: pointer;
         }
 
         /* Validação visual */
@@ -351,7 +369,7 @@
 
         /* Responsividade */
         @media (max-width: 768px) {
-            .registration-container {
+            .login-container {
                 max-width: 100%;
                 padding: 1rem;
             }
@@ -368,12 +386,7 @@
                 padding: 2rem 1.5rem;
             }
             
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .btn-success {
+            .btn-primary {
                 width: 100%;
                 justify-content: center;
             }
@@ -406,7 +419,7 @@
             outline: 2px solid transparent;
         }
 
-        .btn-success:focus {
+        .btn-primary:focus {
             outline: 2px solid var(--primary-light);
             outline-offset: 2px;
         }
@@ -435,15 +448,15 @@
     </style>
 </head>
 <body>
-    <i class="fas fa-user-plus decoration decoration-1"></i>
-    <i class="fas fa-clipboard-list decoration decoration-2"></i>
+    <i class="fas fa-sign-in-alt decoration decoration-1"></i>
+    <i class="fas fa-key decoration decoration-2"></i>
 
-    <div class="registration-container">
-        <div class="registration-card">
+    <div class="login-container">
+        <div class="login-card">
             <div class="card-header">
-                <i class="fas fa-chart-line"></i> SGE
-                <h1 class="card-title">Cadastre-se</h1>
-                <p class="card-subtitle">Crie sua conta e comece a usar nosso sistema</p>
+                <i class="fas fa-chart-line fa-2x"></i> SGE
+                <h1 class="card-title">Acessar Sistema</h1>
+                <p class="card-subtitle">Entre com suas credenciais para continuar</p>
             </div>
             
             <div class="card-body">
@@ -465,66 +478,50 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('register') }}">
+                <form method="POST" action="{{ route('login') }}">
                     @csrf
                     
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="nome" class="form-label">Nome completo</label>
-                            <div class="input-container">
-                                <input type="text" id="nome" name="nome" class="form-control @error('nome') is-invalid @enderror" 
-                                       placeholder="Seu nome completo" value="{{ old('nome') }}" required autocomplete="name" autofocus>
-                                <i class="fas fa-user input-icon"></i>
-                            </div>
-                            @error('nome')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                    <div class="form-group">
+                        <label for="email" class="form-label">E-mail</label>
+                        <div class="input-container">
+                            <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror" 
+                                   placeholder="voce@exemplo.com" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                            <i class="fas fa-envelope input-icon"></i>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="email" class="form-label">E-mail</label>
-                            <div class="input-container">
-                                <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                                       placeholder="voce@exemplo.com" value="{{ old('email') }}" required autocomplete="email">
-                                <i class="fas fa-envelope input-icon"></i>
-                            </div>
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="senha" class="form-label">Senha</label>
+                        <div class="input-container">
+                            <input type="password" id="senha" name="senha" class="form-control @error('senha') is-invalid @enderror" 
+                                   placeholder="Sua senha" required autocomplete="current-password">
+                            <i class="fas fa-lock input-icon"></i>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="senha" class="form-label">Senha</label>
-                            <div class="input-container">
-                                <input type="password" id="senha" name="senha" class="form-control @error('senha') is-invalid @enderror" 
-                                       placeholder="Sua senha" required autocomplete="new-password">
-                                <i class="fas fa-lock input-icon"></i>
-                            </div>
-                            @error('senha')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="senha_confirmation" class="form-label">Confirmar Senha</label>
-                            <div class="input-container">
-                                <input type="password" id="senha_confirmation" name="senha_confirmation" class="form-control" 
-                                       placeholder="Confirme sua senha" required autocomplete="new-password">
-                                <i class="fas fa-lock input-icon"></i>
-                            </div>
-                        </div>
+                        @error('senha')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                        <label class="form-check-label" for="remember">
+                            Lembrar-me
+                        </label>
                     </div>
 
                     <div class="submit-container">
-                        <button type="submit" class="btn-success">
-                            <i class="fas fa-user-plus"></i>
-                            Criar conta
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Entrar no sistema
                         </button>
                     </div>
                 </form>
 
                 <div class="auth-links">
-                    Já tem uma conta? <a href="{{ route('login') }}">Faça login aqui</a>
+                    Não tem uma conta? <a href="{{ route('register') }}">Cadastre-se aqui</a>
                 </div>
             </div>
         </div>
@@ -568,35 +565,9 @@
                     }
                 }
                 
-                // Validação de confirmação de senha
-                if (field.id === 'senha_confirmation' && value) {
-                    const senha = document.getElementById('senha').value;
-                    if (value !== senha) {
-                        field.classList.add('is-invalid');
-                        field.classList.remove('is-valid');
-                        return false;
-                    }
-                }
-                
                 field.classList.remove('is-invalid');
                 field.classList.add('is-valid');
                 return true;
-            }
-            
-            // Validação de confirmação de senha em tempo real
-            const senhaInput = document.getElementById('senha');
-            const confirmSenhaInput = document.getElementById('senha_confirmation');
-            
-            if (senhaInput && confirmSenhaInput) {
-                senhaInput.addEventListener('input', function() {
-                    if (confirmSenhaInput.value) {
-                        validateField(confirmSenhaInput);
-                    }
-                });
-                
-                confirmSenhaInput.addEventListener('input', function() {
-                    validateField(this);
-                });
             }
             
             // Prevenir envio duplo do formulário

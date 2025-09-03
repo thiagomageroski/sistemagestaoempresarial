@@ -289,6 +289,7 @@
             padding: 4rem 2rem;
             color: var(--text-muted);
             grid-column: 1 / -1;
+            display: none;
         }
 
         .empty-state i {
@@ -480,34 +481,33 @@
         <div class="filters-container">
             <div class="filter-group">
                 <span class="filter-label">Categoria:</span>
-                <select class="filter-select">
-                    <option>Todas</option>
-                    <option>Eletrônicos</option>
-                    <option>Roupas</option>
-                    <option>Livros</option>
+                <select class="filter-select" id="category-filter">
+                    <option value="all">Todas</option>
+                    <option value="Áudio">Áudio</option>
+                    <option value="Wearables">Wearables</option>
+                    <option value="Computadores">Computadores</option>
+                    <option value="Periféricos">Periféricos</option>
+                    <option value="Gaming">Gaming</option>
                 </select>
             </div>
             <div class="filter-group">
                 <span class="filter-label">Ordenar por:</span>
-                <select class="filter-select">
-                    <option>Mais recentes</option>
-                    <option>Menor preço</option>
-                    <option>Maior preço</option>
-                    <option>Mais populares</option>
+                <select class="filter-select" id="sort-filter">
+                    <option value="recent">Mais recentes</option>
+                    <option value="price-low">Menor preço</option>
+                    <option value="price-high">Maior preço</option>
+                    <option value="popular">Mais populares</option>
                 </select>
             </div>
         </div>
 
         <!-- Alertas -->
-        <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>Alguns produtos estão com estoque baixo. Verifique o inventário.</span>
-        </div>
+
 
         <!-- Grid de produtos -->
-        <div class="products-grid">
+        <div class="products-grid" id="products-container">
             <!-- Produto 1 -->
-            <div class="product-card" style="animation-delay: 0.1s">
+            <div class="product-card" data-category="Áudio" data-price="599.90" data-popularity="5">
                 <div class="product-image">
                     <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Fone de Ouvido Premium">
                     <div class="product-badge">Popular</div>
@@ -529,7 +529,7 @@
             </div>
 
             <!-- Produto 2 -->
-            <div class="product-card" style="animation-delay: 0.2s">
+            <div class="product-card" data-category="Wearables" data-price="399.90" data-popularity="4">
                 <div class="product-image">
                     <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Smartwatch Inteligente">
                     <div class="product-badge">-20%</div>
@@ -551,7 +551,7 @@
             </div>
 
             <!-- Produto 3 -->
-            <div class="product-card" style="animation-delay: 0.3s">
+            <div class="product-card" data-category="Áudio" data-price="299.90" data-popularity="3">
                 <div class="product-image">
                     <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Caixa de Som Bluetooth">
                     <div class="product-badge">Novo</div>
@@ -573,7 +573,7 @@
             </div>
 
             <!-- Produto 4 -->
-            <div class="product-card" style="animation-delay: 0.4s">
+            <div class="product-card" data-category="Computadores" data-price="4299.90" data-popularity="4">
                 <div class="product-image">
                     <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Notebook Ultrafino">
                 </div>
@@ -594,7 +594,7 @@
             </div>
 
             <!-- Produto 5 -->
-            <div class="product-card" style="animation-delay: 0.5s">
+            <div class="product-card" data-category="Periféricos" data-price="499.90" data-popularity="5">
                 <div class="product-image">
                     <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Teclado Mecânico">
                     <div class="product-badge">Promoção</div>
@@ -616,7 +616,7 @@
             </div>
 
             <!-- Produto 6 -->
-            <div class="product-card" style="animation-delay: 0.6s">
+            <div class="product-card" data-category="Gaming" data-price="349.90" data-popularity="4">
                 <div class="product-image">
                     <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Headphone Gaming">
                 </div>
@@ -637,55 +637,113 @@
             </div>
         </div>
 
-        <!-- Estado vazio (comentado para referência) -->
-        <!--
-        <div class="empty-state">
+        <!-- Estado vazio -->
+        <div class="empty-state" id="empty-state">
             <i class="fas fa-box-open"></i>
             <h3>Nenhum produto encontrado</h3>
             <p>Tente ajustar os filtros ou termos de busca.</p>
-            <button class="btn-primary">
-                <i class="fas fa-plus"></i> Adicionar Produto
+            <button class="btn-primary" id="reset-filters">
+                <i class="fas fa-sync"></i> Limpar Filtros
             </button>
         </div>
-        -->
     </div>
 
     <script>
         // Adicionando interatividade
         document.addEventListener('DOMContentLoaded', function() {
-            // Busca em tempo real
+            // Elementos DOM
             const searchInput = document.querySelector('.search-input');
+            const categoryFilter = document.getElementById('category-filter');
+            const sortFilter = document.getElementById('sort-filter');
+            const productsContainer = document.getElementById('products-container');
             const productCards = document.querySelectorAll('.product-card');
+            const emptyState = document.getElementById('empty-state');
+            const resetFiltersBtn = document.getElementById('reset-filters');
             
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
+            // Função para filtrar produtos
+            function filterProducts() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategory = categoryFilter.value;
+                const sortBy = sortFilter.value;
                 
+                let visibleProducts = 0;
+                
+                // Filtrar produtos
                 productCards.forEach(card => {
                     const title = card.querySelector('.product-title').textContent.toLowerCase();
-                    const category = card.querySelector('.product-category').textContent.toLowerCase();
+                    const category = card.getAttribute('data-category');
+                    const price = parseFloat(card.getAttribute('data-price'));
+                    const popularity = parseInt(card.getAttribute('data-popularity'));
                     
-                    if (title.includes(searchTerm) || category.includes(searchTerm)) {
+                    // Verificar se o produto corresponde aos critérios de busca e filtro
+                    const matchesSearch = title.includes(searchTerm);
+                    const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+                    
+                    if (matchesSearch && matchesCategory) {
                         card.style.display = 'flex';
+                        visibleProducts++;
                     } else {
                         card.style.display = 'none';
                     }
                 });
+                
+                // Ordenar produtos
+                if (sortBy !== 'recent') {
+                    const visibleCards = Array.from(productCards).filter(card => card.style.display !== 'none');
+                    
+                    visibleCards.sort((a, b) => {
+                        const aPrice = parseFloat(a.getAttribute('data-price'));
+                        const bPrice = parseFloat(b.getAttribute('data-price'));
+                        const aPopularity = parseInt(a.getAttribute('data-popularity'));
+                        const bPopularity = parseInt(b.getAttribute('data-popularity'));
+                        
+                        switch(sortBy) {
+                            case 'price-low':
+                                return aPrice - bPrice;
+                            case 'price-high':
+                                return bPrice - aPrice;
+                            case 'popular':
+                                return bPopularity - aPopularity;
+                            default:
+                                return 0;
+                        }
+                    });
+                    
+                    // Reordenar os produtos no DOM
+                    visibleCards.forEach(card => {
+                        productsContainer.appendChild(card);
+                    });
+                }
+                
+                // Mostrar ou esconder estado vazio
+                if (visibleProducts === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+            }
+            
+            // Event listeners
+            searchInput.addEventListener('input', filterProducts);
+            categoryFilter.addEventListener('change', filterProducts);
+            sortFilter.addEventListener('change', filterProducts);
+            
+            // Botão para limpar filtros
+            resetFiltersBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                categoryFilter.value = 'all';
+                sortFilter.value = 'recent';
+                filterProducts();
             });
             
-            // Filtros
-            const filterSelects = document.querySelectorAll('.filter-select');
-            filterSelects.forEach(select => {
-                select.addEventListener('change', function() {
-                    // Lógica de filtro seria implementada aqui
-                    console.log('Filtro alterado:', this.value);
-                });
-            });
-            
-            // Animações de entrada em sequência
+            // Inicializar animações de entrada em sequência
             const cards = document.querySelectorAll('.product-card');
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${0.1 + (index * 0.1)}s`;
             });
+            
+            // Inicializar a filtragem
+            filterProducts();
         });
     </script>
 </body>

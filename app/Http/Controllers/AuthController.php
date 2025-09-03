@@ -4,10 +4,34 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
-    public function showLoginForm()
+    private function getUsersFilePath()
+    {
+        return storage_path('app/users.json');
+    }
+
+    private function loadUsers()
+    {
+        $path = $this->getUsersFilePath();
+        
+        if (!file_exists($path)) {
+            return [];
+        }
+        
+        $content = file_get_contents($path);
+        return json_decode($content, true) ?? [];
+    }
+
+    private function saveUsers($users)
+    {
+        $path = $this->getUsersFilePath();
+        file_put_contents($path, json_encode($users, JSON_PRETTY_PRINT));
+    }
+
+    public function showAdminLoginForm()
     {
         if (Session::get('auth')) {
             return redirect()->route('admin.dashboard');
@@ -16,18 +40,18 @@ class AuthController extends Controller
         return view('pages.admin.login');
     }
 
-    public function login(Request $request)
+    public function adminLogin(Request $request)
     {
         $credenciais = $request->validate([
             'email' => ['required', 'email'],
-            'senha' => ['required', 'string', 'min:3'], // ← Mantido como 'senha'
+            'senha' => ['required', 'string', 'min:3'],
         ], [
             'email.required' => 'Informe o e-mail.',
             'email.email'    => 'E-mail inválido.',
             'senha.required' => 'Informe a senha.',
         ]);
 
-        // Autenticação simples (sem banco) - para admin
+        // Autenticação admin fixa
         if ($credenciais['email'] === 'admin@empresa.com' && $credenciais['senha'] === 'admin123') {
             Session::put('auth', true);
             Session::put('user', [
@@ -38,12 +62,30 @@ class AuthController extends Controller
 
             return redirect()
                 ->route('admin.dashboard')
-                ->with('status', 'Login realizado com sucesso!');
+                ->with('status', 'Login administrativo realizado com sucesso!');
         }
 
-        // Verifica se é um usuário registrado via sessão
-        $registeredUsers = Session::get('registered_users', []);
-        foreach ($registeredUsers as $user) {
+        return back()
+            ->withErrors(['email' => 'Credenciais inválidas.'])
+            ->withInput();
+    }
+
+    public function login(Request $request)
+    {
+        $credenciais = $request->validate([
+            'email' => ['required', 'email'],
+            'senha' => ['required', 'string', 'min:6'],
+        ], [
+            'email.required' => 'Informe o e-mail.',
+            'email.email'    => 'E-mail inválido.',
+            'senha.required' => 'Informe a senha.',
+        ]);
+
+        // Carrega usuários do arquivo
+        $users = $this->loadUsers();
+        
+        // Verifica usuários registrados
+        foreach ($users as $user) {
             if ($user['email'] === $credenciais['email'] && $credenciais['senha'] === $user['senha']) {
                 Session::put('auth', true);
                 Session::put('user', $user);
@@ -55,7 +97,7 @@ class AuthController extends Controller
         }
 
         return back()
-            ->withErrors(['email' => 'Credenciais inválidas.'])
+            ->withErrors(['email' => 'E-mail ou senha incorretos.'])
             ->withInput();
     }
 
@@ -70,7 +112,6 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // Validação dos dados do formulário (sem verificação de unique no banco)
         $validated = $request->validate([
             'nome' => 'required|max:255',
             'email' => 'required|email',
@@ -84,11 +125,11 @@ class AuthController extends Controller
             'senha.confirmed' => 'A confirmação de senha não corresponde.',
         ]);
 
-        // Armazena usuários registrados na sessão
-        $registeredUsers = Session::get('registered_users', []);
+        // Carrega usuários existentes
+        $users = $this->loadUsers();
         
         // Verifica se email já existe
-        foreach ($registeredUsers as $user) {
+        foreach ($users as $user) {
             if ($user['email'] === $request->email) {
                 return back()
                     ->withErrors(['email' => 'Este e-mail já está em uso.'])
@@ -98,19 +139,28 @@ class AuthController extends Controller
 
         // Adiciona novo usuário
         $newUser = [
+            'id' => uniqid(), // ID único para cada usuário
             'nome' => $request->nome,
             'email' => $request->email,
             'senha' => $request->senha, // Em sistema real, isso seria hasheado
-            'role' => 'cliente'
+            'role' => 'cliente',
+            'data_criacao' => date('Y-m-d H:i:s')
         ];
 
-        $registeredUsers[] = $newUser;
-        Session::put('registered_users', $registeredUsers);
+        $users[] = $newUser;
+        $this->saveUsers($users);
 
         // Autentica o usuário automaticamente
         Session::put('auth', true);
         Session::put('user', $newUser);
 
         return redirect()->route('produtos.index')->with('status', 'Cadastro realizado com sucesso!');
+    }
+
+    // Método para resetar usuários (opcional - para desenvolvimento)
+    public function resetUsers()
+    {
+        $this->saveUsers([]);
+        return redirect()->route('home')->with('status', 'Usuários resetados com sucesso!');
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Início - SGE Sistema de Gestão</title>
+    <title>TechStore - Sua Loja de Tecnologia</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -101,7 +101,7 @@
         }
 
         .btn-hero {
-            background: linear-gradient(135deg, var(--success-color), var(--success-dark));
+            background: linear-gradient(135deg, var(--success-color), #05b38b);
             color: white;
             border: none;
             border-radius: var(--border-radius);
@@ -144,6 +144,27 @@
         /* Features Section */
         .features-section {
             margin-bottom: 3rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--dark-color);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            border-radius: 2px;
         }
 
         .features-grid {
@@ -243,6 +264,106 @@
             transform: translateX(5px);
         }
 
+        /* Product Showcase */
+        .products-showcase {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 4rem 2rem;
+            margin: 4rem 0;
+            color: white;
+            text-align: center;
+        }
+
+        .showcase-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--warning-color);
+        }
+
+        /* Benefits Section */
+        .benefits-section {
+            margin: 4rem 0;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .benefit-card {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .benefit-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .benefit-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .benefit-description {
+            color: var(--text-muted);
+        }
+
         /* Decorative Elements */
         .floating-shapes {
             position: absolute;
@@ -318,15 +439,6 @@
             }
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
         /* Responsividade */
         @media (max-width: 992px) {
             .hero-title {
@@ -373,6 +485,10 @@
                 max-width: 400px;
                 margin: 0 auto;
             }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 576px) {
@@ -403,35 +519,6 @@
                 font-size: 1.2rem;
             }
         }
-
-        /* Efeitos especiais */
-        .hero-section {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-section::after {
-            content: '';
-            position: absolute;
-            bottom: -50px;
-            left: -50px;
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: pulse 4s ease-in-out infinite;
-        }
-
-        /* Acessibilidade */
-        .btn-hero:focus {
-            outline: 2px solid white;
-            outline-offset: 4px;
-        }
-
-        .feature-card:focus-within {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
     </style>
 </head>
 <body>
@@ -445,14 +532,15 @@
             </div>
             
             <div class="hero-content">
-                <h1 class="hero-title">SGE: Sistema de gestão empresarial</h1>
+                <h1 class="hero-title">TechStore</h1>
                 <p class="hero-subtitle">
-                    Organize vendas, estoque e financeiro em um único lugar com nossa plataforma intuitiva e poderosa.
+                    Descubra o mundo da tecnologia com os melhores produtos, preços imbatíveis 
+                    e entrega rápida para transformar sua experiência digital
                 </p>
                 <div class="hero-cta">
                     <a href="/produtos" class="btn-hero">
-                        <i class="fas fa-rocket"></i>
-                        Explorar Produtos
+                        <i class="fas fa-shopping-cart"></i>
+                        Ver produtos
                     </a>
                 </div>
             </div>
@@ -460,18 +548,20 @@
 
         <!-- Features Section -->
         <div class="features-section" id="features">
+            <h2 class="section-title">Por que escolher a TechStore?</h2>
             <div class="features-grid">
                 <!-- Feature 1 -->
                 <div class="feature-card" style="animation-delay: 0.1s">
                     <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-shipping-fast"></i>
                     </div>
                     <div class="feature-content">
-                        <h3 class="feature-title">Gestão Financeira Avançada</h3>
+                        <h3 class="feature-title">Entrega Rápida</h3>
                         <p class="feature-description">
-                            Controle completo do seu fluxo de caixa, relatórios detalhados e análise de desempenho financeiro em tempo real.
+                            Receba seus produtos em até 48 horas com nosso sistema de entrega expressa. 
+                            Frete grátis para compras acima de R$ 299.
                         </p>
-                        <a href="/produtos" class="feature-link">
+                        <a href="/sobre" class="feature-link">
                             Saiba mais <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
@@ -480,14 +570,15 @@
                 <!-- Feature 2 -->
                 <div class="feature-card" style="animation-delay: 0.2s">
                     <div class="feature-icon">
-                        <i class="fas fa-boxes"></i>
+                        <i class="fas fa-shield-alt"></i>
                     </div>
                     <div class="feature-content">
-                        <h3 class="feature-title">Controle de Estoque Inteligente</h3>
+                        <h3 class="feature-title">Garantia Estendida</h3>
                         <p class="feature-description">
-                            Gerencie seu inventário com alertas automáticos, controle de entradas/saídas e integração com vendas.
+                            Todos os produtos com 12 meses de garantia e suporte técnico especializado. 
+                            Sua satisfação é nossa prioridade.
                         </p>
-                        <a href="/produtos" class="feature-link">
+                        <a href="/sobre" class="feature-link">
                             Saiba mais <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
@@ -496,69 +587,104 @@
                 <!-- Feature 3 -->
                 <div class="feature-card" style="animation-delay: 0.3s">
                     <div class="feature-icon">
-                        <i class="fas fa-shopping-cart"></i>
+                        <i class="fas fa-credit-card"></i>
                     </div>
                     <div class="feature-content">
-                        <h3 class="feature-title">Vendas e PDV Integrado</h3>
+                        <h3 class="feature-title">Parcele em 12x</h3>
                         <p class="feature-description">
-                            Sistema completo de vendas com emissão de NFC-e, controle de comissões e gestão de clientes.
+                            Pagamento seguro com cartão, PIX ou boleto. Parcelamento sem juros 
+                            em até 12 vezes no cartão de crédito.
                         </p>
-                        <a href="/produtos" class="feature-link">
-                            Saiba mais <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="feature-card" style="animation-delay: 0.4s">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h3 class="feature-title">Gestão de Clientes</h3>
-                        <p class="feature-description">
-                            CRM integrado com histórico de compras, fidelização e comunicação multicanal com seus clientes.
-                        </p>
-                        <a href="/produtos" class="feature-link">
-                            Saiba mais <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Feature 5 -->
-                <div class="feature-card" style="animation-delay: 0.5s">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h3 class="feature-title">Relatórios Personalizados</h3>
-                        <p class="feature-description">
-                            Crie relatórios personalizados, dashboards interativos e tome decisões baseadas em dados concretos.
-                        </p>
-                        <a href="/produtos" class="feature-link">
-                            Saiba mais <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="feature-card" style="animation-delay: 0.6s">
-                    <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h3 class="feature-title">Acesso Multiplataforma</h3>
-                        <p class="feature-description">
-                            Acesse seu sistema de qualquer dispositivo, com aplicativos nativos para iOS, Android e versão web.
-                        </p>
-                        <a href="/produtos" class="feature-link">
+                        <a href="/sobre" class="feature-link">
                             Saiba mais <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Products Showcase -->
+        <div class="products-showcase">
+            <h2 class="showcase-title">Destaques da Loja</h2>
+            <p>Confira nossos produtos mais populares</p>
+            
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                         alt="Notebook Pro 15" class="product-image">
+                    <h4 class="product-name">Notebook Pro 15</h4>
+                    <div class="product-price">R$ 4.299,90</div>
+                </div>
+
+                <div class="product-card">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                         alt="Headphone Bluetooth" class="product-image">
+                    <h4 class="product-name">Headphone Bluetooth</h4>
+                    <div class="product-price">R$ 599,90</div>
+                </div>
+
+                <div class="product-card">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" 
+                         alt="Smartwatch" class="product-image">
+                    <h4 class="product-name">Smartwatch Inteligente</h4>
+                    <div class="product-price">R$ 399,90</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="benefits-section">
+            <h2 class="section-title">Vantagens Exclusivas</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3 class="benefit-title">Ofertas Exclusivas</h3>
+                    <p class="benefit-description">
+                        Preços especiais e promoções que você só encontra aqui na TechStore
+                    </p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="benefit-title">Suporte 24/7</h3>
+                    <p class="benefit-description">
+                        Nossa equipe está sempre disponível para ajudar com qualquer dúvida
+                    </p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    <h3 class="benefit-title">Troca Facilitada</h3>
+                    <p class="benefit-description">
+                        Troque ou devolva seu produto em até 30 dias sem complicação
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final CTA Section -->
+        <div class="products-showcase">
+            <h2 class="showcase-title">Pronto para Elevar sua Experiência?</h2>
+            <p>Junte-se a milhares de clientes satisfeitos e descubra por que somos a loja de tecnologia mais amada do Brasil</p>
+            <div class="hero-cta">
+                <a href="/cadastro" class="btn-hero">
+                    <i class="fas fa-user-plus"></i>
+                    Criar Minha Conta
+                </a>
+            </div>
+        </div>
     </div>
+
+    <!-- ... seu conteúdo existente ... -->
+
+<!-- Incluir o footer -->
+@include('partials.footer')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -581,11 +707,11 @@
                 });
             });
 
-            // Interação com o botão CTA
-            const ctaButton = document.querySelector('.btn-hero');
-            ctaButton.addEventListener('click', function(e) {
-                // Não é mais necessário pois agora é um link
-                // A navegação será tratada naturalmente pelo navegador
+            // Animação para os produtos
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach((card, index) => {
+                card.style.animationDelay = `${0.2 + (index * 0.1)}s`;
+                card.style.animation = 'fadeInUp 0.6s ease forwards';
             });
         });
     </script>

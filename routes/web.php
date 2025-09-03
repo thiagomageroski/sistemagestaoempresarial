@@ -15,8 +15,9 @@ use App\Http\Controllers\ProdutoController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sobre', [HomeController::class, 'sobre'])->name('sobre');
 Route::get('/cadastro', [HomeController::class, 'cadastro'])->name('cadastro');
+Route::get('/login', [HomeController::class, 'login'])->name('login');
 
-// Rotas de produtos (SEM MIDDLEWARE TEMPORARIAMENTE)
+// Rotas de produtos (protegidas - requerem autenticação)
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
 Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
 
@@ -25,24 +26,23 @@ Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produt
 | Autenticação
 |--------------------------------------------------------------------------
 */
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
-Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login.post');
-Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/cadastro', [AuthController::class, 'register'])->name('register');
+
+// Rota de login administrativo (se ainda for necessária)
+Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.post');
 
 /*
 |--------------------------------------------------------------------------
-| Área Administrativa (proteção básica via sessão)
+| Área Administrativa
 |--------------------------------------------------------------------------
 */
 Route::middleware(['admin.auth'])->group(function () {
-    // Dashboard e páginas principais
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    
-    // Detalhes de registros
     Route::get('/admin/show/{id}', [AdminController::class, 'show'])->name('admin.show');
-    
-    // Clientes
     Route::get('/admin/clientes', [ClienteController::class, 'index'])->name('admin.clientes.index');
     Route::get('/admin/clientes/{id}', [ClienteController::class, 'show'])->name('admin.clientes.show');
 });
@@ -54,6 +54,3 @@ Route::middleware(['admin.auth'])->group(function () {
 */
 Route::get('/api/metricas', [AdminController::class, 'metricas'])->name('api.metricas');
 Route::get('/api/vendas-recentes', [AdminController::class, 'vendasRecentes'])->name('api.vendas.recentes');
-
-// Rota para processar o cadastro
-Route::post('/cadastro', [AuthController::class, 'register'])->name('register');
