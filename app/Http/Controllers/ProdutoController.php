@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class ProdutoController extends Controller
 {
@@ -62,12 +63,22 @@ class ProdutoController extends Controller
 
     public function index()
     {
+        // VERIFICAÇÃO via SESSÃO (sem banco)
+        if (!Session::get('auth')) {
+            return redirect()->route('cadastro')->with('error', 'Você precisa se cadastrar para acessar nossos produtos.');
+        }
+
         $produtos = $this->produtos();
         return view('pages.produtos.index', compact('produtos'));
     }
 
     public function show($slug)
     {
+        // VERIFICAÇÃO via SESSÃO (sem banco)
+        if (!Session::get('auth')) {
+            return redirect()->route('cadastro')->with('error', 'Você precisa se cadastrar para acessar nossos produtos.');
+        }
+
         $produto = collect($this->produtos())->firstWhere('slug', $slug);
 
         if (!$produto) {

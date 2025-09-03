@@ -16,15 +16,13 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sobre', [HomeController::class, 'sobre'])->name('sobre');
 Route::get('/cadastro', [HomeController::class, 'cadastro'])->name('cadastro');
 
-// Rotas de produtos (protegidas - requerem autenticação)
-Route::middleware(['check.auth'])->group(function () {
-    Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
-    Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
-});
+// Rotas de produtos (SEM MIDDLEWARE TEMPORARIAMENTE)
+Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
+Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
 
 /*
 |--------------------------------------------------------------------------
-| Autenticação (sem banco, via sessão)
+| Autenticação
 |--------------------------------------------------------------------------
 */
 Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
@@ -57,5 +55,5 @@ Route::middleware(['admin.auth'])->group(function () {
 Route::get('/api/metricas', [AdminController::class, 'metricas'])->name('api.metricas');
 Route::get('/api/vendas-recentes', [AdminController::class, 'vendasRecentes'])->name('api.vendas.recentes');
 
-// Rota para processar o cadastro (adicionar esta linha)
+// Rota para processar o cadastro
 Route::post('/cadastro', [AuthController::class, 'register'])->name('register');
