@@ -27,6 +27,6 @@ class Kernel extends HttpKernel
         
         // SEUS MIDDLEWARES PERSONALIZADOS
         'admin.auth' => \App\Http\Middleware\AdminAuth::class,
-        'check.auth' => \App\Http\Middleware\CheckAuth::class, // ← ESTA LINHA DEVE ESTAR PRESENTE
+        'check.auth' => \App\Http\Middleware\CheckAuth::class, // ← ESTÁ CORRETO
     ];
 }

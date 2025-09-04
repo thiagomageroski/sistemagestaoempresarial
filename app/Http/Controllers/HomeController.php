@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
 {
@@ -33,11 +34,13 @@ class HomeController extends Controller
 
     public function cadastro()
     {
+        // A verificação será feita pelo middleware CheckAuth
         return view('pages.cadastro');
     }
 
     public function login()
     {
-        return view('pages.login'); // ← Novo método
+        // A verificação será feita pelo middleware CheckAuth
+        return view('pages.login');
     }
 }

@@ -75,11 +75,7 @@ class ProdutoController extends Controller
 
     public function index()
     {
-        // VERIFICAÇÃO via SESSÃO - Redireciona para LOGIN em vez de CADASTRO
-        if (!Session::get('auth')) {
-            return redirect()->route('login')->with('error', 'Você precisa fazer login para acessar nossos produtos.');
-        }
-
+        // A verificação de autenticação será feita pelo middleware CheckAuth
         $produtos = $this->produtos();
         
         // Informações do usuário logado
@@ -96,11 +92,7 @@ class ProdutoController extends Controller
 
     public function show($slug)
     {
-        // VERIFICAÇÃO via SESSÃO - Redireciona para LOGIN em vez de CADASTRO
-        if (!Session::get('auth')) {
-            return redirect()->route('login')->with('error', 'Você precisa fazer login para acessar este produto.');
-        }
-
+        // A verificação de autenticação será feita pelo middleware CheckAuth
         $produto = collect($this->produtos())->firstWhere('slug', $slug);
 
         if (!$produto) {
@@ -136,10 +128,7 @@ class ProdutoController extends Controller
     // Novo método para buscar produtos por categoria
     public function porCategoria($categoria)
     {
-        if (!Session::get('auth')) {
-            return redirect()->route('login')->with('error', 'Você precisa fazer login para filtrar produtos.');
-        }
-
+        // A verificação de autenticação será feita pelo middleware CheckAuth
         $produtosFiltrados = collect($this->produtos())
             ->where('categoria', $categoria)
             ->values()
@@ -160,10 +149,7 @@ class ProdutoController extends Controller
     // Novo método para produtos em destaque
     public function destaque()
     {
-        if (!Session::get('auth')) {
-            return redirect()->route('login')->with('error', 'Você precisa fazer login para ver produtos em destaque.');
-        }
-
+        // A verificação de autenticação será feita pelo middleware CheckAuth
         $destaques = collect($this->produtos())
             ->where('destaque', true)
             ->values()

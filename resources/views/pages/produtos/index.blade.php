@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -353,6 +354,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -364,6 +366,7 @@
                 opacity: 0;
                 transform: translateX(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -375,6 +378,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -392,11 +396,11 @@
                 align-items: flex-start;
                 gap: 1.5rem;
             }
-            
+
             .search-container {
                 width: 100%;
             }
-            
+
             .search-input {
                 min-width: auto;
                 flex: 1;
@@ -408,20 +412,20 @@
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 1.5rem;
             }
-            
+
             .page-title {
                 font-size: 1.8rem;
                 padding-left: 1.5rem;
             }
-            
+
             .container {
                 padding: 1.5rem 1rem;
             }
-            
+
             .filters-container {
                 flex-direction: column;
             }
-            
+
             .filter-group {
                 width: 100%;
             }
@@ -431,15 +435,15 @@
             .products-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .product-image {
                 height: 200px;
             }
-            
+
             .search-btn span {
                 display: none;
             }
-            
+
             .search-btn {
                 padding: 0.75rem;
             }
@@ -457,12 +461,14 @@
             0% {
                 background-position: 200% 0;
             }
+
             100% {
                 background-position: -200% 0;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Cabeçalho com busca -->
@@ -509,7 +515,8 @@
             <!-- Produto 1 -->
             <div class="product-card" data-category="Áudio" data-price="599.90" data-popularity="5">
                 <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Fone de Ouvido Premium">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                        alt="Fone de Ouvido Premium">
                     <div class="product-badge">Popular</div>
                 </div>
                 <div class="product-body">
@@ -531,7 +538,8 @@
             <!-- Produto 2 -->
             <div class="product-card" data-category="Wearables" data-price="399.90" data-popularity="4">
                 <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Smartwatch Inteligente">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                        alt="Smartwatch Inteligente">
                     <div class="product-badge">-20%</div>
                 </div>
                 <div class="product-body">
@@ -553,7 +561,8 @@
             <!-- Produto 3 -->
             <div class="product-card" data-category="Áudio" data-price="299.90" data-popularity="3">
                 <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Caixa de Som Bluetooth">
+                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                        alt="Caixa de Som Bluetooth">
                     <div class="product-badge">Novo</div>
                 </div>
                 <div class="product-body">
@@ -575,7 +584,8 @@
             <!-- Produto 4 -->
             <div class="product-card" data-category="Computadores" data-price="4299.90" data-popularity="4">
                 <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Notebook Ultrafino">
+                    <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                        alt="Notebook Ultrafino">
                 </div>
                 <div class="product-body">
                     <h5 class="product-title">Notebook Ultrafino 15.6" 16GB RAM</h5>
@@ -596,7 +606,8 @@
             <!-- Produto 5 -->
             <div class="product-card" data-category="Periféricos" data-price="499.90" data-popularity="5">
                 <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Teclado Mecânico">
+                    <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                        alt="Teclado Mecânico">
                     <div class="product-badge">Promoção</div>
                 </div>
                 <div class="product-body">
@@ -618,7 +629,8 @@
             <!-- Produto 6 -->
             <div class="product-card" data-category="Gaming" data-price="349.90" data-popularity="4">
                 <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Headphone Gaming">
+                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                        alt="Headphone Gaming">
                 </div>
                 <div class="product-body">
                     <h5 class="product-title">Headphone Gaming 7.1 Surround Sound</h5>
@@ -650,7 +662,7 @@
 
     <script>
         // Adicionando interatividade
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Elementos DOM
             const searchInput = document.querySelector('.search-input');
             const categoryFilter = document.getElementById('category-filter');
@@ -659,26 +671,26 @@
             const productCards = document.querySelectorAll('.product-card');
             const emptyState = document.getElementById('empty-state');
             const resetFiltersBtn = document.getElementById('reset-filters');
-            
+
             // Função para filtrar produtos
             function filterProducts() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const selectedCategory = categoryFilter.value;
                 const sortBy = sortFilter.value;
-                
+
                 let visibleProducts = 0;
-                
+
                 // Filtrar produtos
                 productCards.forEach(card => {
                     const title = card.querySelector('.product-title').textContent.toLowerCase();
                     const category = card.getAttribute('data-category');
                     const price = parseFloat(card.getAttribute('data-price'));
                     const popularity = parseInt(card.getAttribute('data-popularity'));
-                    
+
                     // Verificar se o produto corresponde aos critérios de busca e filtro
                     const matchesSearch = title.includes(searchTerm);
                     const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
-                    
+
                     if (matchesSearch && matchesCategory) {
                         card.style.display = 'flex';
                         visibleProducts++;
@@ -686,18 +698,18 @@
                         card.style.display = 'none';
                     }
                 });
-                
+
                 // Ordenar produtos
                 if (sortBy !== 'recent') {
                     const visibleCards = Array.from(productCards).filter(card => card.style.display !== 'none');
-                    
+
                     visibleCards.sort((a, b) => {
                         const aPrice = parseFloat(a.getAttribute('data-price'));
                         const bPrice = parseFloat(b.getAttribute('data-price'));
                         const aPopularity = parseInt(a.getAttribute('data-popularity'));
                         const bPopularity = parseInt(b.getAttribute('data-popularity'));
-                        
-                        switch(sortBy) {
+
+                        switch (sortBy) {
                             case 'price-low':
                                 return aPrice - bPrice;
                             case 'price-high':
@@ -708,13 +720,13 @@
                                 return 0;
                         }
                     });
-                    
+
                     // Reordenar os produtos no DOM
                     visibleCards.forEach(card => {
                         productsContainer.appendChild(card);
                     });
                 }
-                
+
                 // Mostrar ou esconder estado vazio
                 if (visibleProducts === 0) {
                     emptyState.style.display = 'block';
@@ -722,29 +734,30 @@
                     emptyState.style.display = 'none';
                 }
             }
-            
+
             // Event listeners
             searchInput.addEventListener('input', filterProducts);
             categoryFilter.addEventListener('change', filterProducts);
             sortFilter.addEventListener('change', filterProducts);
-            
+
             // Botão para limpar filtros
-            resetFiltersBtn.addEventListener('click', function() {
+            resetFiltersBtn.addEventListener('click', function () {
                 searchInput.value = '';
                 categoryFilter.value = 'all';
                 sortFilter.value = 'recent';
                 filterProducts();
             });
-            
+
             // Inicializar animações de entrada em sequência
             const cards = document.querySelectorAll('.product-card');
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${0.1 + (index * 0.1)}s`;
             });
-            
+
             // Inicializar a filtragem
             filterProducts();
         });
     </script>
 </body>
+
 </html>

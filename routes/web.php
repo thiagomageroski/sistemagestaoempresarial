@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProdutoController;
+use App\Http\Middleware\CheckAuth;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,23 +15,29 @@ use App\Http\Controllers\ProdutoController;
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sobre', [HomeController::class, 'sobre'])->name('sobre');
-Route::get('/cadastro', [HomeController::class, 'cadastro'])->name('cadastro');
-Route::get('/login', [HomeController::class, 'login'])->name('login');
 
-// Rotas de produtos (protegidas - requerem autenticação)
-Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
-Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
+// Rotas de autenticação (acessíveis apenas para não autenticados)
+Route::middleware([CheckAuth::class])->group(function () {
+    Route::get('/cadastro', [HomeController::class, 'cadastro'])->name('cadastro');
+    Route::get('/login', [HomeController::class, 'login'])->name('login');
+});
 
-/*
-|--------------------------------------------------------------------------
-| Autenticação
-|--------------------------------------------------------------------------
-*/
+// Rotas de autenticação (POST)
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/cadastro', [AuthController::class, 'register'])->name('register');
 
-// Rota de login administrativo (se ainda for necessária)
+// Rotas de produtos (protegidas - requerem autenticação)
+Route::middleware([CheckAuth::class])->group(function () {
+    Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
+    Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
+});
+
+// Rotas para desenvolvimento (podem ser removidas em produção)
+Route::get('/admin/users', [AuthController::class, 'viewUsers'])->name('admin.users');
+Route::get('/admin/clear-users', [AuthController::class, 'clearUsers'])->name('admin.clear.users');
+
+// Rota de login administrativo
 Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.post');
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -31,6 +30,17 @@ class AuthController extends Controller
         file_put_contents($path, json_encode($users, JSON_PRETTY_PRINT));
     }
 
+    private function userExists($email)
+    {
+        $users = $this->loadUsers();
+        foreach ($users as $user) {
+            if ($user['email'] === $email) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function showAdminLoginForm()
     {
         if (Session::get('auth')) {
@@ -51,7 +61,7 @@ class AuthController extends Controller
             'senha.required' => 'Informe a senha.',
         ]);
 
-        // Autenticação admin fixa
+        // Autenticação admin
         if ($credenciais['email'] === 'admin@empresa.com' && $credenciais['senha'] === 'admin123') {
             Session::put('auth', true);
             Session::put('user', [
@@ -62,7 +72,7 @@ class AuthController extends Controller
 
             return redirect()
                 ->route('admin.dashboard')
-                ->with('status', 'Login administrativo realizado com sucesso!');
+                ->with('success', 'Login administrativo realizado com sucesso!');
         }
 
         return back()
@@ -81,10 +91,9 @@ class AuthController extends Controller
             'senha.required' => 'Informe a senha.',
         ]);
 
-        // Carrega usuários do arquivo
+        // Verifica usuários registrados
         $users = $this->loadUsers();
         
-        // Verifica usuários registrados
         foreach ($users as $user) {
             if ($user['email'] === $credenciais['email'] && $credenciais['senha'] === $user['senha']) {
                 Session::put('auth', true);
@@ -92,7 +101,7 @@ class AuthController extends Controller
 
                 return redirect()
                     ->route('produtos.index')
-                    ->with('status', 'Login realizado com sucesso!');
+                    ->with('success', 'Login realizado com sucesso!');
             }
         }
 
@@ -107,11 +116,12 @@ class AuthController extends Controller
 
         return redirect()
             ->route('home')
-            ->with('status', 'Você saiu da sua conta.');
+            ->with('success', 'Você saiu da sua conta.');
     }
 
     public function register(Request $request)
     {
+        // Validação dos dados do formulário
         $validated = $request->validate([
             'nome' => 'required|max:255',
             'email' => 'required|email',
@@ -125,24 +135,22 @@ class AuthController extends Controller
             'senha.confirmed' => 'A confirmação de senha não corresponde.',
         ]);
 
+        // Verifica se o email já existe
+        if ($this->userExists($request->email)) {
+            return back()
+                ->withErrors(['email' => 'Este e-mail já está cadastrado.'])
+                ->withInput();
+        }
+
         // Carrega usuários existentes
         $users = $this->loadUsers();
-        
-        // Verifica se email já existe
-        foreach ($users as $user) {
-            if ($user['email'] === $request->email) {
-                return back()
-                    ->withErrors(['email' => 'Este e-mail já está em uso.'])
-                    ->withInput();
-            }
-        }
 
         // Adiciona novo usuário
         $newUser = [
-            'id' => uniqid(), // ID único para cada usuário
+            'id' => uniqid(),
             'nome' => $request->nome,
             'email' => $request->email,
-            'senha' => $request->senha, // Em sistema real, isso seria hasheado
+            'senha' => $request->senha,
             'role' => 'cliente',
             'data_criacao' => date('Y-m-d H:i:s')
         ];
@@ -154,13 +162,23 @@ class AuthController extends Controller
         Session::put('auth', true);
         Session::put('user', $newUser);
 
-        return redirect()->route('produtos.index')->with('status', 'Cadastro realizado com sucesso!');
+        return redirect()
+            ->route('produtos.index')
+            ->with('success', 'Cadastro realizado com sucesso! Bem-vindo à TechStore!');
     }
 
-    // Método para resetar usuários (opcional - para desenvolvimento)
-    public function resetUsers()
+    // Método para visualizar usuários (apenas para desenvolvimento)
+    public function viewUsers()
+    {
+        $users = $this->loadUsers();
+        return response()->json($users);
+    }
+
+    // Método para limpar usuários (apenas para desenvolvimento)
+    public function clearUsers()
     {
         $this->saveUsers([]);
-        return redirect()->route('home')->with('status', 'Usuários resetados com sucesso!');
+        Session::forget(['auth', 'user']);
+        return redirect()->route('home')->with('info', 'Usuários resetados.');
     }
 }
