@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,6 +40,64 @@
             min-height: 100vh;
         }
 
+        /* Navbar Estilizada */
+        .custom-navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            box-shadow: var(--nav-shadow);
+            padding: 0.5rem 0;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            color: var(--success-color);
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .navbar-toggler {
+            border: none;
+            color: white !important;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-collapse {
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+                padding: 1rem;
+                border-radius: 8px;
+                margin-top: 0.5rem;
+            }
+            
+            .nav-link {
+                padding: 0.75rem 1rem !important;
+            }
+        }
+
+        /* Conteúdo Principal */
         .container {
             max-width: 1200px;
             padding: 2rem 1.5rem;
@@ -297,6 +354,7 @@
             font-size: 4rem;
             margin-bottom: 1.5rem;
             color: var(--gray-light);
+            opacity: 0.5;
         }
 
         .empty-state h3 {
@@ -308,6 +366,7 @@
         .empty-state p {
             font-size: 1.1rem;
             margin-bottom: 2rem;
+            color: var(--text-muted);
         }
 
         /* Filtros adicionais */
@@ -354,7 +413,6 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -366,7 +424,6 @@
                 opacity: 0;
                 transform: translateX(-20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -378,7 +435,6 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -447,6 +503,15 @@
             .search-btn {
                 padding: 0.75rem;
             }
+            
+            .page-title {
+                font-size: 1.6rem;
+                padding-left: 1.2rem;
+            }
+            
+            .page-title::before {
+                width: 4px;
+            }
         }
 
         /* Efeitos de loading */
@@ -461,7 +526,6 @@
             0% {
                 background-position: 200% 0;
             }
-
             100% {
                 background-position: -200% 0;
             }
@@ -470,6 +534,68 @@
 </head>
 
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg custom-navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-chart-line"></i>
+                SGE
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i>
+                            Início
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/produtos">
+                            <i class="fas fa-box"></i>
+                            Produtos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-info-circle"></i>
+                            Sobre
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-user-plus"></i>
+                            Cadastro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-cog"></i>
+                            Admin
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex">
+                    <a href="#" class="btn btn-light btn-sm me-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </a>
+                    <form action="#" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sair
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
         <!-- Cabeçalho com busca -->
         <div class="page-header">
@@ -508,7 +634,6 @@
         </div>
 
         <!-- Alertas -->
-
 
         <!-- Grid de produtos -->
         <div class="products-grid" id="products-container">
@@ -660,10 +785,25 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Adicionando interatividade
-        document.addEventListener('DOMContentLoaded', function () {
-            // Elementos DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            // Script da Navbar - Destacar link ativo
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+                
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Script dos Produtos
             const searchInput = document.querySelector('.search-input');
             const categoryFilter = document.getElementById('category-filter');
             const sortFilter = document.getElementById('sort-filter');
@@ -741,7 +881,7 @@
             sortFilter.addEventListener('change', filterProducts);
 
             // Botão para limpar filtros
-            resetFiltersBtn.addEventListener('click', function () {
+            resetFiltersBtn.addEventListener('click', function() {
                 searchInput.value = '';
                 categoryFilter.value = 'all';
                 sortFilter.value = 'recent';
@@ -759,5 +899,4 @@
         });
     </script>
 </body>
-
 </html>
