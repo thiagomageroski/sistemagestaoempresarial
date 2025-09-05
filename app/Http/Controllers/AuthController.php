@@ -4,181 +4,233 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    private function getUsersFilePath()
-    {
-        return storage_path('app/users.json');
-    }
+    // Array simulando um "banco de dados" de usuários
+    private $users = [
+        [
+            'id' => 1,
+            'name' => 'Administrador',
+            'email' => 'admin@email.com',
+            'password' => 'password', // Senha em texto puro
+            'role' => 'admin',
+            'created_at' => '2024-01-01 00:00:00'
+        ],
+        [
+            'id' => 2,
+            'name' => 'João Silva',
+            'email' => 'joao@email.com',
+            'password' => 'password', // Senha em texto puro
+            'role' => 'user',
+            'created_at' => '2024-01-02 00:00:00'
+        ],
+        [
+            'id' => 3,
+            'name' => 'Maria Santos',
+            'email' => 'maria@email.com',
+            'password' => 'password', // Senha em texto puro
+            'role' => 'user',
+            'created_at' => '2024-01-03 00:00:00'
+        ]
+    ];
 
-    private function loadUsers()
+    // Página de login
+    public function showLoginForm()
     {
-        $path = $this->getUsersFilePath();
-        
-        if (!file_exists($path)) {
-            return [];
+        if (Session::get('user')) {
+            return redirect()->route('home');
         }
         
-        $content = file_get_contents($path);
-        return json_decode($content, true) ?? [];
+        return view('pages.login');
     }
 
-    private function saveUsers($users)
+    // Processar login - CORRIGIDO
+    public function login(Request $request)
     {
-        $path = $this->getUsersFilePath();
-        file_put_contents($path, json_encode($users, JSON_PRETTY_PRINT));
-    }
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6'
+        ]);
 
-    private function userExists($email)
-    {
-        $users = $this->loadUsers();
-        foreach ($users as $user) {
-            if ($user['email'] === $email) {
-                return true;
+        $credentials = $request->only('email', 'password');
+
+        // Buscar usuário pelo email
+        $user = collect($this->users)->firstWhere('email', $credentials['email']);
+
+        // CORREÇÃO: Verificar senha em texto puro, não com Hash::check
+        if ($user && $credentials['password'] === $user['password']) {
+            // Login bem-sucedido - SALVAR AMBOS PARA CONSISTÊNCIA
+            Session::put('user', $user);
+            Session::put('auth', true);
+            Session::put('last_login', now()->toDateTimeString());
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login realizado com sucesso!',
+                    'redirect' => $user['role'] === 'admin' ? route('admin.dashboard') : route('home')
+                ]);
             }
+
+            return redirect()->intended($user['role'] === 'admin' ? route('admin.dashboard') : route('home'))
+                ->with('success', 'Login realizado com sucesso!');
         }
-        return false;
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Credenciais inválidas'
+            ], 401);
+        }
+
+        return back()->withErrors([
+            'email' => 'Credenciais inválidas',
+        ])->withInput($request->only('email'));
     }
 
+    // Página de cadastro
+    public function showRegisterForm()
+    {
+        if (Session::get('user')) {
+            return redirect()->route('home');
+        }
+        
+        return view('pages.cadastro');
+    }
+
+    // Processar cadastro - CORRIGIDO
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        // Verificar se email já existe
+        $existingUser = collect($this->users)->firstWhere('email', $request->email);
+        if ($existingUser) {
+            return back()->withErrors([
+                'email' => 'Este email já está em uso'
+            ])->withInput($request->only('name', 'email'));
+        }
+
+        // Criar novo usuário (simulado)
+        $newUser = [
+            'id' => count($this->users) + 1,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password, // Senha em texto puro
+            'role' => 'user',
+            'created_at' => now()->toDateTimeString()
+        ];
+
+        // Adicionar ao "banco de dados" (em produção, salvaria no banco real)
+        $this->users[] = $newUser;
+
+        // Login automático após cadastro - SALVAR AMBOS PARA CONSISTÊNCIA
+        Session::put('user', $newUser);
+        Session::put('auth', true);
+        Session::put('last_login', now()->toDateTimeString());
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cadastro realizado com sucesso!',
+                'redirect' => route('home')
+            ]);
+        }
+
+        return redirect()->route('home')
+            ->with('success', 'Cadastro realizado com sucesso! Você já está logado.');
+    }
+
+    // Logout
+    public function logout(Request $request)
+    {
+        // Limpar AMBOS os valores de sessão
+        Session::forget('user');
+        Session::forget('auth');
+        Session::forget('last_login');
+        Session::flush();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Logout realizado com sucesso!',
+                'redirect' => route('home')
+            ]);
+        }
+
+        return redirect()->route('home')
+            ->with('success', 'Logout realizado com sucesso!');
+    }
+
+    // Login administrativo - CORRIGIDO
     public function showAdminLoginForm()
     {
-        if (Session::get('auth')) {
+        if (Session::get('user')) {
             return redirect()->route('admin.dashboard');
         }
-
+        
         return view('pages.admin.login');
     }
 
     public function adminLogin(Request $request)
     {
-        $credenciais = $request->validate([
-            'email' => ['required', 'email'],
-            'senha' => ['required', 'string', 'min:3'],
-        ], [
-            'email.required' => 'Informe o e-mail.',
-            'email.email'    => 'E-mail inválido.',
-            'senha.required' => 'Informe a senha.',
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6'
         ]);
 
-        // Autenticação admin
-        if ($credenciais['email'] === 'admin@empresa.com' && $credenciais['senha'] === 'admin123') {
-            Session::put('auth', true);
-            Session::put('user', [
-                'nome'  => 'Administrador',
-                'email' => 'admin@empresa.com',
-                'role'  => 'admin',
-            ]);
+        $credentials = $request->only('email', 'password');
+        $user = collect($this->users)->firstWhere('email', $credentials['email']);
 
-            return redirect()
-                ->route('admin.dashboard')
+        // CORREÇÃO: Verificar senha em texto puro
+        if ($user && $credentials['password'] === $user['password'] && $user['role'] === 'admin') {
+            // Login administrativo - SALVAR AMBOS PARA CONSISTÊNCIA
+            Session::put('user', $user);
+            Session::put('auth', true);
+            Session::put('last_login', now()->toDateTimeString());
+
+            return redirect()->route('admin.dashboard')
                 ->with('success', 'Login administrativo realizado com sucesso!');
         }
 
-        return back()
-            ->withErrors(['email' => 'Credenciais inválidas.'])
-            ->withInput();
+        return back()->withErrors([
+            'email' => 'Credenciais inválidas ou acesso não autorizado',
+        ])->withInput($request->only('email'));
     }
 
-    public function login(Request $request)
-    {
-        $credenciais = $request->validate([
-            'email' => ['required', 'email'],
-            'senha' => ['required', 'string', 'min:6'],
-        ], [
-            'email.required' => 'Informe o e-mail.',
-            'email.email'    => 'E-mail inválido.',
-            'senha.required' => 'Informe a senha.',
-        ]);
-
-        // Verifica usuários registrados
-        $users = $this->loadUsers();
-        
-        foreach ($users as $user) {
-            if ($user['email'] === $credenciais['email'] && $credenciais['senha'] === $user['senha']) {
-                Session::put('auth', true);
-                Session::put('user', $user);
-
-                return redirect()
-                    ->route('produtos.index')
-                    ->with('success', 'Login realizado com sucesso!');
-            }
-        }
-
-        return back()
-            ->withErrors(['email' => 'E-mail ou senha incorretos.'])
-            ->withInput();
-    }
-
-    public function logout(Request $request)
-    {
-        Session::forget(['auth', 'user']);
-
-        return redirect()
-            ->route('home')
-            ->with('success', 'Você saiu da sua conta.');
-    }
-
-    public function register(Request $request)
-    {
-        // Validação dos dados do formulário
-        $validated = $request->validate([
-            'nome' => 'required|max:255',
-            'email' => 'required|email',
-            'senha' => 'required|min:6|confirmed',
-        ], [
-            'nome.required' => 'Informe o nome completo.',
-            'email.required' => 'Informe o e-mail.',
-            'email.email' => 'E-mail inválido.',
-            'senha.required' => 'Informe a senha.',
-            'senha.min' => 'A senha deve ter pelo menos 6 caracteres.',
-            'senha.confirmed' => 'A confirmação de senha não corresponde.',
-        ]);
-
-        // Verifica se o email já existe
-        if ($this->userExists($request->email)) {
-            return back()
-                ->withErrors(['email' => 'Este e-mail já está cadastrado.'])
-                ->withInput();
-        }
-
-        // Carrega usuários existentes
-        $users = $this->loadUsers();
-
-        // Adiciona novo usuário
-        $newUser = [
-            'id' => uniqid(),
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'senha' => $request->senha,
-            'role' => 'cliente',
-            'data_criacao' => date('Y-m-d H:i:s')
-        ];
-
-        $users[] = $newUser;
-        $this->saveUsers($users);
-
-        // Autentica o usuário automaticamente
-        Session::put('auth', true);
-        Session::put('user', $newUser);
-
-        return redirect()
-            ->route('produtos.index')
-            ->with('success', 'Cadastro realizado com sucesso! Bem-vindo à TechStore!');
-    }
-
-    // Método para visualizar usuários (apenas para desenvolvimento)
+    // Visualizar usuários (apenas para desenvolvimento)
     public function viewUsers()
     {
-        $users = $this->loadUsers();
-        return response()->json($users);
+        return response()->json([
+            'users' => $this->users,
+            'current_user' => Session::get('user'),
+            'session_data' => session()->all()
+        ]);
     }
 
-    // Método para limpar usuários (apenas para desenvolvimento)
+    // Limpar usuários (apenas para desenvolvimento)
     public function clearUsers()
     {
-        $this->saveUsers([]);
-        Session::forget(['auth', 'user']);
-        return redirect()->route('home')->with('info', 'Usuários resetados.');
+        // Esta função é apenas para desenvolvimento
+        Session::flush();
+        
+        return redirect()->route('home')
+            ->with('info', 'Sessão limpa com sucesso!');
+    }
+
+    // Verificar autenticação (para AJAX)
+    public function checkAuth()
+    {
+        return response()->json([
+            'authenticated' => !!Session::get('user'),
+            'user' => Session::get('user'),
+            'is_admin' => Session::get('user') && Session::get('user')['role'] === 'admin'
+        ]);
     }
 }

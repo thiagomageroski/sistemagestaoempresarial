@@ -539,6 +539,7 @@
 </head>
 
 <body>
+    @include('partials.navbar')
     <div class="container">
         <!-- Cabeçalho -->
         <div class="page-header">
@@ -670,7 +671,7 @@
 
 <!-- Incluir o footer -->
 @include('partials.footer')
-
+    <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>    
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Animações de entrada em sequência

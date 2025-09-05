@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -183,6 +184,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -193,6 +195,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -240,25 +243,25 @@
             .navbar-brand {
                 font-size: 1.25rem;
             }
-            
+
             .navbar-brand i {
                 font-size: 1.5rem;
             }
-            
+
             .footer-content {
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .footer-links {
                 justify-content: center;
                 flex-wrap: wrap;
             }
-            
+
             .alert {
                 padding: 0.875rem 1.25rem;
             }
-            
+
             .alert i {
                 font-size: 1.25rem;
             }
@@ -269,7 +272,8 @@
             box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
         }
 
-        a:focus, button:focus {
+        a:focus,
+        button:focus {
             outline: 2px solid var(--primary-color);
             outline-offset: 2px;
         }
@@ -280,12 +284,12 @@
                 background-color: #1a1d28;
                 color: #e9ecef;
             }
-            
+
             .card-custom {
                 background: #2d3142;
                 color: #e9ecef;
             }
-            
+
             .page-title {
                 color: #e9ecef;
                 border-bottom-color: var(--primary-light);
@@ -304,12 +308,15 @@
             0% {
                 background-position: 200% 0;
             }
+
             100% {
                 background-position: -200% 0;
             }
         }
     </style>
+
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
@@ -318,11 +325,11 @@
                 <i class="fas fa-chart-line"></i>
                 <span>SGE</span>
             </a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <i class="fas fa-bars"></i>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -363,7 +370,7 @@
                 <i class="fas fa-check-circle"></i>
                 <span>Operação realizada com sucesso!</span>
             </div>
-            
+
             <div class="alert alert-warning">
                 <i class="fas fa-exclamation-triangle"></i>
                 <span>Atenção: Alguns itens necessitam de sua revisão.</span>
@@ -371,7 +378,7 @@
 
             <!-- Conteúdo da Página -->
             <h1 class="page-title">Dashboard</h1>
-            
+
             <div class="row">
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card-custom">
@@ -382,7 +389,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card-custom">
                         <div class="card-body-custom text-center">
@@ -392,7 +399,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card-custom">
                         <div class="card-body-custom text-center">
@@ -402,7 +409,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card-custom">
                         <div class="card-body-custom text-center">
@@ -424,14 +431,14 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Sistema de Gestão Empresarial</span>
                 </div>
-                
+
                 <div class="footer-links">
                     <a href="#"><i class="fas fa-question-circle me-1"></i> Ajuda</a>
                     <a href="#"><i class="fas fa-shield-alt me-1"></i> Privacidade</a>
                     <a href="#"><i class="fas fa-envelope me-1"></i> Contato</a>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
                 &copy; 2023 SGE - Sistema de Gestão Empresarial. Todos os direitos reservados.
             </div>
@@ -439,27 +446,29 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>
+
     <script>
         // Adicionando interatividade
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Fechar alertas automaticamente após 5 segundos
-            setTimeout(function() {
+            setTimeout(function () {
                 const alerts = document.querySelectorAll('.alert');
                 alerts.forEach(alert => {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
                 });
             }, 5000);
-            
+
             // Adicionar animação de hover nos cards
             const cards = document.querySelectorAll('.card-custom');
             cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
+                card.addEventListener('mouseenter', function () {
                     this.style.transform = 'translateY(-5px)';
                     this.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.1)';
                 });
-                
-                card.addEventListener('mouseleave', function() {
+
+                card.addEventListener('mouseleave', function () {
                     this.style.transform = 'translateY(0)';
                     this.style.boxShadow = 'var(--card-shadow)';
                 });
@@ -467,4 +476,5 @@
         });
     </script>
 </body>
+
 </html>

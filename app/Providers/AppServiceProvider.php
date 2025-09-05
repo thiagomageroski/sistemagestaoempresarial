@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Compartilha as variáveis com TODAS as views
+        View::composer('*', function ($view) {
+            $view->with('auth', Session::has('auth'));
+            $view->with('user', Session::get('user'));
+        });
     }
 }

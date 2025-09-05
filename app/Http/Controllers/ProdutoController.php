@@ -11,6 +11,7 @@ class ProdutoController extends Controller
     {
         return [
             [
+                'id' => 1, // ← ID ADICIONADO
                 'slug' => 'notebook-pro-15',
                 'nome' => 'Notebook Pro 15',
                 'preco' => 7999.90,
@@ -21,6 +22,7 @@ class ProdutoController extends Controller
                 'estoque' => 15
             ],
             [
+                'id' => 2, // ← ID ADICIONADO
                 'slug' => 'mouse-ergonomico',
                 'nome' => 'Mouse Ergonômico',
                 'preco' => 199.90,
@@ -31,6 +33,7 @@ class ProdutoController extends Controller
                 'estoque' => 42
             ],
             [
+                'id' => 3, // ← ID ADICIONADO
                 'slug' => 'monitor-27-4k',
                 'nome' => 'Monitor 27" 4K',
                 'preco' => 2499.90,
@@ -41,6 +44,7 @@ class ProdutoController extends Controller
                 'estoque' => 8
             ],
             [
+                'id' => 4, // ← ID ADICIONADO
                 'slug' => 'teclado-mecanico',
                 'nome' => 'Teclado Mecânico RGB',
                 'preco' => 499.90,
@@ -51,6 +55,7 @@ class ProdutoController extends Controller
                 'estoque' => 25
             ],
             [
+                'id' => 5, // ← ID ADICIONADO
                 'slug' => 'headphone-bluetooth',
                 'nome' => 'Headphone Bluetooth',
                 'preco' => 349.90,
@@ -61,11 +66,12 @@ class ProdutoController extends Controller
                 'estoque' => 18
             ],
             [
+                'id' => 6, // ← ID ADICIONADO
                 'slug' => 'webcam-4k',
                 'nome' => 'Webcam 4K',
                 'preco' => 399.90,
                 'categoria' => 'Acessórios',
-                'descricao' => 'Webcam 4K com microfone integrado e ajuste automático de foco.',
+                'descricao' => 'Webcam 4K com microfone integrado and ajuste automático de foco.',
                 'imagem' => 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
                 'destaque' => false,
                 'estoque' => 30
@@ -73,18 +79,15 @@ class ProdutoController extends Controller
         ];
     }
 
+    // ... o resto do código permanece igual
     public function index()
     {
-        // A verificação de autenticação será feita pelo middleware CheckAuth
         $produtos = $this->produtos();
         
-        // Informações do usuário logado
         $usuario = Session::get('user');
         
-        // Produtos em destaque
         $destaques = collect($produtos)->where('destaque', true)->take(3)->values()->all();
         
-        // Categorias únicas
         $categorias = collect($produtos)->pluck('categoria')->unique()->values()->all();
 
         return view('pages.produtos.index', compact('produtos', 'usuario', 'destaques', 'categorias'));
@@ -92,7 +95,6 @@ class ProdutoController extends Controller
 
     public function show($slug)
     {
-        // A verificação de autenticação será feita pelo middleware CheckAuth
         $produto = collect($this->produtos())->firstWhere('slug', $slug);
 
         if (!$produto) {
@@ -101,7 +103,6 @@ class ProdutoController extends Controller
                 ->with('warning', 'Produto não encontrado.');
         }
 
-        // Produtos relacionados (mesma categoria)
         $relacionados = collect($this->produtos())
             ->reject(fn($p) => $p['slug'] === $slug)
             ->where('categoria', $produto['categoria'])
@@ -109,7 +110,6 @@ class ProdutoController extends Controller
             ->values()
             ->all();
 
-        // Se não houver relacionados suficientes na mesma categoria, completa com outros
         if (count($relacionados) < 3) {
             $complemento = collect($this->produtos())
                 ->reject(fn($p) => $p['slug'] === $slug || in_array($p, $relacionados))
@@ -125,10 +125,8 @@ class ProdutoController extends Controller
         return view('pages.produtos.show', compact('produto', 'relacionados', 'usuario'));
     }
 
-    // Novo método para buscar produtos por categoria
     public function porCategoria($categoria)
     {
-        // A verificação de autenticação será feita pelo middleware CheckAuth
         $produtosFiltrados = collect($this->produtos())
             ->where('categoria', $categoria)
             ->values()
@@ -146,10 +144,8 @@ class ProdutoController extends Controller
         return view('pages.produtos.categoria', compact('produtosFiltrados', 'categoria', 'usuario', 'categorias'));
     }
 
-    // Novo método para produtos em destaque
     public function destaque()
     {
-        // A verificação de autenticação será feita pelo middleware CheckAuth
         $destaques = collect($this->produtos())
             ->where('destaque', true)
             ->values()
@@ -159,5 +155,11 @@ class ProdutoController extends Controller
         $categorias = collect($this->produtos())->pluck('categoria')->unique()->values()->all();
 
         return view('pages.produtos.destaque', compact('destaques', 'usuario', 'categorias'));
+    }
+
+    public function adminIndex()
+    {
+        $produtos = $this->produtos();
+        return view('pages.admin.produtos.index', compact('produtos'));
     }
 }

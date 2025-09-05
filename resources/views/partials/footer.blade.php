@@ -32,29 +32,14 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf1 100%);
-            color: var(--dark-color);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        main {
-            flex: 1;
-            padding: 2rem;
-        }
-
         /* Footer Estilizado */
         .techstore-footer {
             background: linear-gradient(135deg, var(--dark-color) 0%, #1a1d28 100%);
             color: white;
             padding: 4rem 0 2rem;
-            margin-top: auto;
             position: relative;
             overflow: hidden;
+            width: 100%;
         }
 
         .techstore-footer::before {
@@ -293,7 +278,7 @@
             border-radius: 25px;
             font-size: 0.85rem;
             font-weight: 500;
-            transition: var(--transition;
+            transition: var(--transition);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -386,6 +371,7 @@
             
             .security-badges {
                 justify-content: center;
+                flex-wrap: wrap;
             }
         }
 
@@ -411,6 +397,10 @@
                 flex-direction: column;
                 gap: 0.75rem;
             }
+            
+            .footer-bottom {
+                text-align: center;
+            }
         }
 
         /* Melhorias de acessibilidade */
@@ -419,19 +409,10 @@
             outline: 2px solid var(--primary-light);
             outline-offset: 2px;
         }
-
-        /* Efeitos especiais */
-        .techstore-footer {
-            background-attachment: fixed;
-        }
     </style>
 </head>
 <body>
-    <main>
-        <div class="container text-center py-5">
-            <h1>TechStore - Sua Loja de Tecnologia</h1>
-        </div>
-    </main>
+    <!-- Conteúdo da página aqui -->
 
     <footer class="techstore-footer">
         <div class="footer-wave"></div>
@@ -448,16 +429,16 @@
                         com preços imbatíveis e entrega rápida para todo o Brasil.
                     </p>
                     <div class="footer-social">
-                        <a href="#" class="social-link" aria-label="Facebook">
+                        <a href="https://www.facebook.com/" class="social-link" aria-label="Facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="social-link" aria-label="Instagram">
+                        <a href="https://instagram.com/" class="social-link" aria-label="Instagram">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="social-link" aria-label="Twitter">
+                        <a href="https://x.com/" class="social-link" aria-label="Twitter">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="social-link" aria-label="YouTube">
+                        <a href="https://www.youtube.com/" class="social-link" aria-label="YouTube">
                             <i class="fab fa-youtube"></i>
                         </a>
                     </div>
@@ -474,46 +455,9 @@
                             </a>
                         </li>
                         <li class="footer-link-item">
-                            <a href="/produtos?categoria=informatica" class="footer-link">
-                                <i class="fas fa-chevron-right"></i>
-                                Informática
-                            </a>
-                        </li>
-                        <li class="footer-link-item">
-                            <a href="/produtos?categoria=acessorios" class="footer-link">
-                                <i class="fas fa-chevron-right"></i>
-                                Acessórios
-                            </a>
-                        </li>
-                        <li class="footer-link-item">
-                            <a href="/produtos?categoria=audio" class="footer-link">
-                                <i class="fas fa-chevron-right"></i>
-                                Áudio
-                            </a>
-                        </li>
-                        <li class="footer-link-item">
-                            <a href="/produtos/destaque" class="footer-link">
-                                <i class="fas fa-chevron-right"></i>
-                                Em Destaque
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Suporte Section -->
-                <div class="footer-section">
-                    <h3 class="footer-section-title">Suporte</h3>
-                    <ul class="footer-links">
-                        <li class="footer-link-item">
                             <a href="/sobre" class="footer-link">
                                 <i class="fas fa-chevron-right"></i>
                                 Sobre Nós
-                            </a>
-                        </li>
-                        <li class="footer-link-item">
-                            <a href="/contato" class="footer-link">
-                                <i class="fas fa-chevron-right"></i>
-                                Fale Conosco
                             </a>
                         </li>
                         <li class="footer-link-item">
@@ -536,6 +480,9 @@
                         </li>
                     </ul>
                 </div>
+
+                <!-- Suporte Section -->
+                
 
                 <!-- Contact Section -->
                 <div class="footer-section">
@@ -623,17 +570,6 @@
                 
                 link.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateX(0)';
-                });
-            });
-
-            // Efeito de parallax suave
-            window.addEventListener('scroll', function() {
-                const scrolled = window.pageYOffset;
-                const parallaxElements = document.querySelectorAll('.techstore-footer');
-                
-                parallaxElements.forEach(element => {
-                    const speed = 0.3;
-                    element.style.backgroundPositionY = -(scrolled * speed) + 'px';
                 });
             });
         });

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -414,6 +415,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -424,6 +426,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -431,9 +434,12 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0) rotate(0deg);
             }
+
             50% {
                 transform: translateY(-20px) rotate(10deg);
             }
@@ -444,11 +450,11 @@
             .hero-title {
                 font-size: 2.8rem;
             }
-            
+
             .hero-subtitle {
                 font-size: 1.2rem;
             }
-            
+
             .features-grid {
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 1.5rem;
@@ -459,28 +465,28 @@
             .container {
                 padding: 1.5rem 1rem;
             }
-            
+
             .hero-content {
                 padding: 3rem 1.5rem;
             }
-            
+
             .hero-title {
                 font-size: 2.2rem;
             }
-            
+
             .hero-subtitle {
                 font-size: 1.1rem;
             }
-            
+
             .btn-hero {
                 padding: 1rem 2rem;
                 font-size: 1.1rem;
             }
-            
+
             .features-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .feature-card {
                 max-width: 400px;
                 margin: 0 auto;
@@ -495,33 +501,36 @@
             .hero-content {
                 padding: 2rem 1rem;
             }
-            
+
             .hero-title {
                 font-size: 1.8rem;
             }
-            
+
             .hero-subtitle {
                 font-size: 1rem;
             }
-            
+
             .btn-hero {
                 width: 100%;
                 justify-content: center;
             }
-            
+
             .feature-icon {
                 width: 70px;
                 height: 70px;
                 font-size: 1.8rem;
             }
-            
+
             .feature-title {
                 font-size: 1.2rem;
             }
         }
     </style>
 </head>
+
 <body>
+    @include('partials.navbar')
+
     <div class="container">
         <!-- Hero Section -->
         <div class="hero-section">
@@ -530,11 +539,11 @@
                 <div class="shape shape-2"></div>
                 <div class="shape shape-3"></div>
             </div>
-            
+
             <div class="hero-content">
                 <h1 class="hero-title">TechStore</h1>
                 <p class="hero-subtitle">
-                    Descubra o mundo da tecnologia com os melhores produtos, preços imbatíveis 
+                    Descubra o mundo da tecnologia com os melhores produtos, preços imbatíveis
                     e entrega rápida para transformar sua experiência digital
                 </p>
                 <div class="hero-cta">
@@ -558,7 +567,7 @@
                     <div class="feature-content">
                         <h3 class="feature-title">Entrega Rápida</h3>
                         <p class="feature-description">
-                            Receba seus produtos em até 48 horas com nosso sistema de entrega expressa. 
+                            Receba seus produtos em até 48 horas com nosso sistema de entrega expressa.
                             Frete grátis para compras acima de R$ 299.
                         </p>
                         <a href="/sobre" class="feature-link">
@@ -575,7 +584,7 @@
                     <div class="feature-content">
                         <h3 class="feature-title">Garantia Estendida</h3>
                         <p class="feature-description">
-                            Todos os produtos com 12 meses de garantia e suporte técnico especializado. 
+                            Todos os produtos com 12 meses de garantia e suporte técnico especializado.
                             Sua satisfação é nossa prioridade.
                         </p>
                         <a href="/sobre" class="feature-link">
@@ -592,7 +601,7 @@
                     <div class="feature-content">
                         <h3 class="feature-title">Parcele em 12x</h3>
                         <p class="feature-description">
-                            Pagamento seguro com cartão, PIX ou boleto. Parcelamento sem juros 
+                            Pagamento seguro com cartão, PIX ou boleto. Parcelamento sem juros
                             em até 12 vezes no cartão de crédito.
                         </p>
                         <a href="/sobre" class="feature-link">
@@ -607,25 +616,25 @@
         <div class="products-showcase">
             <h2 class="showcase-title">Destaques da Loja</h2>
             <p>Confira nossos produtos mais populares</p>
-            
+
             <div class="product-grid">
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
-                         alt="Notebook Pro 15" class="product-image">
+                    <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                        alt="Notebook Pro 15" class="product-image">
                     <h4 class="product-name">Notebook Pro 15</h4>
                     <div class="product-price">R$ 4.299,90</div>
                 </div>
 
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
-                         alt="Headphone Bluetooth" class="product-image">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                        alt="Headphone Bluetooth" class="product-image">
                     <h4 class="product-name">Headphone Bluetooth</h4>
                     <div class="product-price">R$ 599,90</div>
                 </div>
 
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" 
-                         alt="Smartwatch" class="product-image">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                        alt="Smartwatch" class="product-image">
                     <h4 class="product-name">Smartwatch Inteligente</h4>
                     <div class="product-price">R$ 399,90</div>
                 </div>
@@ -671,7 +680,8 @@
         <!-- Final CTA Section -->
         <div class="products-showcase">
             <h2 class="showcase-title">Pronto para Elevar sua Experiência?</h2>
-            <p>Junte-se a milhares de clientes satisfeitos e descubra por que somos a loja de tecnologia mais amada do Brasil</p>
+            <p>Junte-se a milhares de clientes satisfeitos e descubra por que somos a loja de tecnologia mais amada do
+                Brasil</p>
             <div class="hero-cta">
                 <a href="/cadastro" class="btn-hero">
                     <i class="fas fa-user-plus"></i>
@@ -683,11 +693,13 @@
 
     <!-- ... seu conteúdo existente ... -->
 
-<!-- Incluir o footer -->
-@include('partials.footer')
+    <!-- Incluir o footer -->
+    @include('partials.footer')
+
+    <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Animações de entrada em sequência
             const featureCards = document.querySelectorAll('.feature-card');
             featureCards.forEach((card, index) => {
@@ -696,12 +708,12 @@
 
             // Efeito de hover nos cards
             featureCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
+                card.addEventListener('mouseenter', function () {
                     this.style.transform = 'translateY(-8px)';
                     this.style.boxShadow = 'var(--card-shadow-hover)';
                 });
-                
-                card.addEventListener('mouseleave', function() {
+
+                card.addEventListener('mouseleave', function () {
                     this.style.transform = 'translateY(0)';
                     this.style.boxShadow = 'var(--card-shadow)';
                 });
@@ -716,4 +728,5 @@
         });
     </script>
 </body>
+
 </html>
