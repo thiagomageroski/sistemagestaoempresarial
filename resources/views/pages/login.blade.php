@@ -478,7 +478,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('login.post') }}">
                     @csrf
                     
                     <div class="form-group">
@@ -494,13 +494,13 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="senha" class="form-label">Senha</label>
+                        <label for="password" class="form-label">Senha</label>
                         <div class="input-container">
-                            <input type="password" id="senha" name="senha" class="form-control @error('senha') is-invalid @enderror" 
+                            <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" 
                                    placeholder="Sua senha" required autocomplete="current-password">
                             <i class="fas fa-lock input-icon"></i>
                         </div>
-                        @error('senha')
+                        @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -521,7 +521,7 @@
                 </form>
 
                 <div class="auth-links">
-                    Não tem uma conta? <a href="{{ route('register') }}">Cadastre-se aqui</a>
+                    Não tem uma conta? <a href="{{ route('cadastro') }}">Cadastre-se aqui</a>
                 </div>
             </div>
         </div>

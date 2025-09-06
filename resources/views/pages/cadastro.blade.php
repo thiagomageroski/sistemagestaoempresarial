@@ -430,7 +430,7 @@
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -470,13 +470,13 @@
                     
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="nome" class="form-label">Nome completo</label>
+                            <label for="name" class="form-label">Nome completo</label>
                             <div class="input-container">
-                                <input type="text" id="nome" name="nome" class="form-control @error('nome') is-invalid @enderror" 
-                                       placeholder="Seu nome completo" value="{{ old('nome') }}" required autocomplete="name" autofocus>
+                                <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" 
+                                       placeholder="Seu nome completo" value="{{ old('name') }}" required autocomplete="name" autofocus>
                                 <i class="fas fa-user input-icon"></i>
                             </div>
-                            @error('nome')
+                            @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -494,21 +494,21 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="senha" class="form-label">Senha</label>
+                            <label for="password" class="form-label">Senha</label>
                             <div class="input-container">
-                                <input type="password" id="senha" name="senha" class="form-control @error('senha') is-invalid @enderror" 
+                                <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" 
                                        placeholder="Sua senha" required autocomplete="new-password">
                                 <i class="fas fa-lock input-icon"></i>
                             </div>
-                            @error('senha')
+                            @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         
                         <div class="form-group">
-                            <label for="senha_confirmation" class="form-label">Confirmar Senha</label>
+                            <label for="password_confirmation" class="form-label">Confirmar Senha</label>
                             <div class="input-container">
-                                <input type="password" id="senha_confirmation" name="senha_confirmation" class="form-control" 
+                                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" 
                                        placeholder="Confirme sua senha" required autocomplete="new-password">
                                 <i class="fas fa-lock input-icon"></i>
                             </div>
@@ -570,9 +570,9 @@
                 }
                 
                 // Validação de confirmação de senha
-                if (field.id === 'senha_confirmation' && value) {
-                    const senha = document.getElementById('senha').value;
-                    if (value !== senha) {
+                if (field.id === 'password_confirmation' && value) {
+                    const password = document.getElementById('password').value;
+                    if (value !== password) {
                         field.classList.add('is-invalid');
                         field.classList.remove('is-valid');
                         return false;
@@ -585,17 +585,17 @@
             }
             
             // Validação de confirmação de senha em tempo real
-            const senhaInput = document.getElementById('senha');
-            const confirmSenhaInput = document.getElementById('senha_confirmation');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('password_confirmation');
             
-            if (senhaInput && confirmSenhaInput) {
-                senhaInput.addEventListener('input', function() {
-                    if (confirmSenhaInput.value) {
-                        validateField(confirmSenhaInput);
+            if (passwordInput && confirmPasswordInput) {
+                passwordInput.addEventListener('input', function() {
+                    if (confirmPasswordInput.value) {
+                        validateField(confirmPasswordInput);
                     }
                 });
                 
-                confirmSenhaInput.addEventListener('input', function() {
+                confirmPasswordInput.addEventListener('input', function() {
                     validateField(this);
                 });
             }
