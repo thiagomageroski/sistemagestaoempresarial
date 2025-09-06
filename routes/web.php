@@ -18,15 +18,17 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sobre', [HomeController::class, 'sobre'])->name('sobre');
 
 // Rotas de autenticação (acessíveis apenas para não autenticados)
-Route::middleware(['guest'])->group(function () {
+Route::middleware([\App\Http\Middleware\CheckAuth::class . ':guest'])->group(function () {
     Route::get('/cadastro', [HomeController::class, 'cadastro'])->name('cadastro');
     Route::get('/login', [HomeController::class, 'login'])->name('login');
+    Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
 });
 
 // Rotas de autenticação (POST) - acessíveis a todos
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/cadastro', [AuthController::class, 'register'])->name('register');
+Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.post');
 
 // Rotas de produtos (públicas)
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
@@ -50,10 +52,6 @@ Route::middleware([CustomAuth::class])->group(function () {
 Route::get('/admin/users', [AuthController::class, 'viewUsers'])->name('admin.users');
 Route::get('/admin/clear-users', [AuthController::class, 'clearUsers'])->name('admin.clear.users');
 
-// Rota de login administrativo
-Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
-Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.post');
-
 /*
 |--------------------------------------------------------------------------
 | Área Administrativa (Protegida por middleware custom.auth)
@@ -63,11 +61,11 @@ Route::middleware([CustomAuth::class])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/show/{id}', [AdminController::class, 'show'])->name('admin.show');
-    
+
     // Rotas de clientes
     Route::get('/clientes', [ClienteController::class, 'index'])->name('admin.clientes.index');
     Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('admin.clientes.show');
-    
+
     // Rotas de produtos administrativas
     Route::get('/produtos', [ProdutoController::class, 'adminIndex'])->name('admin.produtos.index');
     Route::get('/produtos/criar', [ProdutoController::class, 'create'])->name('admin.produtos.create');

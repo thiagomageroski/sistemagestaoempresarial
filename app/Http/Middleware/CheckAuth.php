@@ -4,25 +4,20 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckAuth
 {
-    /**
-     * Handle an incoming request.
-     */
     public function handle(Request $request, Closure $next, $mode = 'auth'): Response
     {
-        $isAuthenticated = Auth::check();
+        $isAuthenticated = Session::get('user') !== null;
 
         if ($mode === 'auth') {
-            // Modo: requer autenticação
             if (!$isAuthenticated) {
                 return $this->handleUnauthenticated($request, 'Por favor, faça login para acessar esta página.');
             }
         } elseif ($mode === 'guest') {
-            // Modo: requer que NÃO esteja autenticado
             if ($isAuthenticated) {
                 return $this->handleAlreadyAuthenticated($request, 'Você já está logado.');
             }
@@ -31,9 +26,6 @@ class CheckAuth
         return $next($request);
     }
 
-    /**
-     * Handle unauthenticated requests.
-     */
     protected function handleUnauthenticated(Request $request, string $message)
     {
         if ($request->expectsJson() || $request->ajax()) {
@@ -50,9 +42,6 @@ class CheckAuth
             ->with('redirect', url()->current());
     }
 
-    /**
-     * Handle already authenticated requests for guest routes.
-     */
     protected function handleAlreadyAuthenticated(Request $request, string $message)
     {
         if ($request->expectsJson() || $request->ajax()) {
