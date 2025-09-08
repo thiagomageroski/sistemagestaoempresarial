@@ -461,19 +461,19 @@
                             </a>
                         </li>
                         <li class="footer-link-item">
-                            <a href="/ajuda" class="footer-link">
+                            <a href="/politicas" class="footer-link">
                                 <i class="fas fa-chevron-right"></i>
                                 Central de Ajuda
                             </a>
                         </li>
                         <li class="footer-link-item">
-                            <a href="/garantia" class="footer-link">
+                            <a href="/politicas" class="footer-link">
                                 <i class="fas fa-chevron-right"></i>
                                 Política de Garantia
                             </a>
                         </li>
                         <li class="footer-link-item">
-                            <a href="/trocas" class="footer-link">
+                            <a href="/politicas" class="footer-link">
                                 <i class="fas fa-chevron-right"></i>
                                 Trocas e Devoluções
                             </a>

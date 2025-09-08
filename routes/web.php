@@ -16,6 +16,9 @@ use App\Http\Middleware\CustomAuth;
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sobre', [HomeController::class, 'sobre'])->name('sobre');
+Route::get('/politicas', function () {
+    return view('pages.politicas');
+})->name('politicas');
 
 // Rotas de autenticação (acessíveis apenas para não autenticados)
 Route::middleware([\App\Http\Middleware\CheckAuth::class . ':guest'])->group(function () {
@@ -32,16 +35,20 @@ Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.
 
 // Rotas de produtos (públicas)
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
-Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
 Route::get('/produtos/categoria/{categoria}', [ProdutoController::class, 'porCategoria'])->name('produtos.categoria');
 Route::get('/produtos/destaque', [ProdutoController::class, 'destaque'])->name('produtos.destaque');
+
+// Rota de detalhes do produto (PROTEGIDA - requer autenticação)
+Route::middleware([CustomAuth::class])->group(function () {
+    Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
+});
 
 // Rotas do Carrinho (protegidas - requerem autenticação)
 Route::middleware([CustomAuth::class])->group(function () {
     Route::prefix('carrinho')->group(function () {
         Route::get('/', [CarrinhoController::class, 'index'])->name('carrinho.index');
         Route::post('/adicionar', [CarrinhoController::class, 'adicionar'])->name('carrinho.adicionar');
-        Route::delete('/remover/{produtoId}', [CarrinhoController::class, 'remover'])->name('carrinho.remover');
+        Route::delete('/remover/{produtoId}', [CarrinhoController::class, 'remover'])->name('carrinho.remover'); // CORRIGIDO
         Route::put('/atualizar/{produtoId}', [CarrinhoController::class, 'atualizar'])->name('carrinho.atualizar');
         Route::post('/limpar', [CarrinhoController::class, 'limpar'])->name('carrinho.limpar');
         Route::get('/quantidade', [CarrinhoController::class, 'quantidade'])->name('carrinho.quantidade');

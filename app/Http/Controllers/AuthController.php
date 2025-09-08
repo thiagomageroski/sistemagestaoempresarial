@@ -4,37 +4,50 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
-    // Array simulando um "banco de dados" de usuários
-    private $users = [
-        [
-            'id' => 1,
-            'name' => 'Administrador',
-            'email' => 'admin@email.com',
-            'password' => 'password', // Senha em texto puro
-            'role' => 'admin',
-            'created_at' => '2024-01-01 00:00:00'
-        ],
-        [
-            'id' => 2,
-            'name' => 'João Silva',
-            'email' => 'joao@email.com',
-            'password' => 'password', // Senha em texto puro
-            'role' => 'user',
-            'created_at' => '2024-01-02 00:00:00'
-        ],
-        [
-            'id' => 3,
-            'name' => 'Maria Santos',
-            'email' => 'maria@email.com',
-            'password' => 'password', // Senha em texto puro
-            'role' => 'user',
-            'created_at' => '2024-01-03 00:00:00'
-        ]
-    ];
+    // Arquivo para persistência
+    private $usersFile = 'users.json';
+    
+    private function getUsers()
+    {
+        try {
+            if (Storage::exists($this->usersFile)) {
+                $content = Storage::get($this->usersFile);
+                $users = json_decode($content, true);
+                
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    return $users;
+                }
+            }
+        } catch (\Exception $e) {
+            // Se h erro, retorna array vazio
+        }
+        
+        // Usuários padrão se o arquivo não existir ou estiver corrompido
+        return [
+            [
+                'id' => 1,
+                'name' => 'Administrador',
+                'email' => 'admin@email.com',
+                'password' => 'password',
+                'role' => 'admin',
+                'created_at' => '2024-01-01 00:00:00'
+            ]
+        ];
+    }
+    
+    private function saveUsers($users)
+    {
+        try {
+            Storage::put($this->usersFile, json_encode($users, JSON_PRETTY_PRINT));
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 
     // Página de login
     public function showLoginForm()
@@ -46,7 +59,7 @@ class AuthController extends Controller
         return view('pages.login');
     }
 
-    // Processar login - CORRIGIDO
+    // Processar login
     public function login(Request $request)
     {
         $request->validate([
@@ -55,34 +68,20 @@ class AuthController extends Controller
         ]);
 
         $credentials = $request->only('email', 'password');
+        $users = $this->getUsers();
 
         // Buscar usuário pelo email
-        $user = collect($this->users)->firstWhere('email', $credentials['email']);
+        $user = collect($users)->firstWhere('email', $credentials['email']);
 
-        // CORREÇÃO: Verificar senha em texto puro, não com Hash::check
+        // Verificação em texto puro
         if ($user && $credentials['password'] === $user['password']) {
-            // Login bem-sucedido - SALVAR AMBOS PARA CONSISTÊNCIA
+            // Login bem-sucedido
             Session::put('user', $user);
             Session::put('auth', true);
             Session::put('last_login', now()->toDateTimeString());
 
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Login realizado com sucesso!',
-                    'redirect' => $user['role'] === 'admin' ? route('admin.dashboard') : route('home')
-                ]);
-            }
-
             return redirect()->intended($user['role'] === 'admin' ? route('admin.dashboard') : route('home'))
                 ->with('success', 'Login realizado com sucesso!');
-        }
-
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Credenciais inválidas'
-            ], 401);
         }
 
         return back()->withErrors([
@@ -90,17 +89,7 @@ class AuthController extends Controller
         ])->withInput($request->only('email'));
     }
 
-    // Página de cadastro
-    public function showRegisterForm()
-    {
-        if (Session::get('user')) {
-            return redirect()->route('home');
-        }
-        
-        return view('pages.cadastro');
-    }
-
-    // Processar cadastro - CORRIGIDO
+    // Processar cadastro
     public function register(Request $request)
     {
         $request->validate([
@@ -109,39 +98,40 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
+        $users = $this->getUsers();
+
         // Verificar se email já existe
-        $existingUser = collect($this->users)->firstWhere('email', $request->email);
+        $existingUser = collect($users)->firstWhere('email', $request->email);
         if ($existingUser) {
             return back()->withErrors([
                 'email' => 'Este email já está em uso'
             ])->withInput($request->only('name', 'email'));
         }
 
-        // Criar novo usuário (simulado)
+        // Criar novo usuário
         $newUser = [
-            'id' => count($this->users) + 1,
+            'id' => count($users) + 1,
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password, // Senha em texto puro
+            'password' => $request->password,
             'role' => 'user',
             'created_at' => now()->toDateTimeString()
         ];
 
-        // Adicionar ao "banco de dados" (em produção, salvaria no banco real)
-        $this->users[] = $newUser;
+        // Adicionar e salvar usuários
+        $users[] = $newUser;
+        $saved = $this->saveUsers($users);
 
-        // Login automático após cadastro - SALVAR AMBOS PARA CONSISTÊNCIA
+        if (!$saved) {
+            return back()->withErrors([
+                'email' => 'Erro interno ao criar conta. Tente novamente.'
+            ])->withInput($request->only('name', 'email'));
+        }
+
+        // Login automático após cadastro
         Session::put('user', $newUser);
         Session::put('auth', true);
         Session::put('last_login', now()->toDateTimeString());
-
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Cadastro realizado com sucesso!',
-                'redirect' => route('home')
-            ]);
-        }
 
         return redirect()->route('home')
             ->with('success', 'Cadastro realizado com sucesso! Você já está logado.');
@@ -150,87 +140,38 @@ class AuthController extends Controller
     // Logout
     public function logout(Request $request)
     {
-        // Limpar AMBOS os valores de sessão
         Session::forget('user');
         Session::forget('auth');
         Session::forget('last_login');
-        Session::flush();
-
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Logout realizado com sucesso!',
-                'redirect' => route('home')
-            ]);
-        }
 
         return redirect()->route('home')
             ->with('success', 'Logout realizado com sucesso!');
     }
 
-    // Login administrativo - CORRIGIDO
-    public function showAdminLoginForm()
-    {
-        if (Session::get('user')) {
-            return redirect()->route('admin.dashboard');
-        }
-        
-        return view('pages.admin.login');
-    }
-
-    public function adminLogin(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6'
-        ]);
-
-        $credentials = $request->only('email', 'password');
-        $user = collect($this->users)->firstWhere('email', $credentials['email']);
-
-        // CORREÇÃO: Verificar senha em texto puro
-        if ($user && $credentials['password'] === $user['password'] && $user['role'] === 'admin') {
-            // Login administrativo - SALVAR AMBOS PARA CONSISTÊNCIA
-            Session::put('user', $user);
-            Session::put('auth', true);
-            Session::put('last_login', now()->toDateTimeString());
-
-            return redirect()->route('admin.dashboard')
-                ->with('success', 'Login administrativo realizado com sucesso!');
-        }
-
-        return back()->withErrors([
-            'email' => 'Credenciais inválidas ou acesso não autorizado',
-        ])->withInput($request->only('email'));
-    }
-
     // Visualizar usuários (apenas para desenvolvimento)
     public function viewUsers()
     {
+        $users = $this->getUsers();
+        
         return response()->json([
-            'users' => $this->users,
+            'users' => $users,
             'current_user' => Session::get('user'),
-            'session_data' => session()->all()
+            'session_data' => session()->all(),
+            'storage_path' => storage_path('app/' . $this->usersFile),
+            'file_exists' => Storage::exists($this->usersFile)
         ]);
     }
 
     // Limpar usuários (apenas para desenvolvimento)
     public function clearUsers()
     {
-        // Esta função é apenas para desenvolvimento
+        if (Storage::exists($this->usersFile)) {
+            Storage::delete($this->usersFile);
+        }
+        
         Session::flush();
         
         return redirect()->route('home')
-            ->with('info', 'Sessão limpa com sucesso!');
-    }
-
-    // Verificar autenticação (para AJAX)
-    public function checkAuth()
-    {
-        return response()->json([
-            'authenticated' => !!Session::get('user'),
-            'user' => Session::get('user'),
-            'is_admin' => Session::get('user') && Session::get('user')['role'] === 'admin'
-        ]);
+            ->with('info', 'Sessão e usuários limpos com sucesso!');
     }
 }

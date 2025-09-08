@@ -312,6 +312,70 @@
             align-items: center;
         }
         
+        /* Badge para itens do carrinho - ESTILO MELHORADO */
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #ef476f, #e5366a);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid #ffffff;
+            box-shadow: 0 3px 10px rgba(239, 71, 111, 0.4);
+            z-index: 1001;
+            animation: bounceIn 0.5s ease;
+        }
+        
+        .cart-badge.empty {
+            display: none;
+        }
+        
+        .nav-cart-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 3px 10px rgba(239, 71, 111, 0.4);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 5px 15px rgba(239, 71, 111, 0.5);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 3px 10px rgba(239, 71, 111, 0.4);
+            }
+        }
+        
+        .cart-badge.pulse {
+            animation: pulse 0.6s ease;
+        }
+        
         @media (max-width: 992px) {
             .navbar-nav-centralizado {
                 width: 100%;
@@ -390,23 +454,6 @@
                 font-size: 1.5rem;
             }
         }
-        
-        /* Badge para itens do carrinho */
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff6b6b;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -448,10 +495,19 @@
                         </a>
                     </li>
                     <li class="nav-item nav-item-minimal">
-                        <a class="nav-link-minimal {{ request()->is('favoritos*') ? 'active' : '' }}" href="/carrinho">
-                            <i class="fas fa-shopping-cart"></i>
-                            Carrinho
-                        </a>
+                        <div class="nav-cart-container">
+                            <a class="nav-link-minimal {{ request()->is('carrinho*') ? 'active' : '' }}" href="/carrinho">
+                                <i class="fas fa-shopping-cart"></i>
+                                Carrinho
+                                @if(session('carrinho_count', 0) > 0)
+                                    <span class="cart-badge" id="navbar-cart-count">
+                                        {{ session('carrinho_count', 0) }}
+                                    </span>
+                                @else
+                                    <span class="cart-badge empty" id="navbar-cart-count" style="display: none;"></span>
+                                @endif
+                            </a>
+                        </div>
                     </li>
                     @endif
                 </ul>
@@ -466,7 +522,7 @@
                         </div>
                         <div class="profile-dropdown" id="profileDropdown">
                             <div class="profile-header">
-                                <div class="profile-name">{{ $user['nome'] ?? 'Usuário' }}</div>
+                                <div class="profile-name">{{ $user['name'] ?? '' }}</div>
                                 <div class="profile-email">{{ $user['email'] ?? '' }}</div>
                             </div>
                             <a href="#" class="profile-item">
@@ -480,6 +536,10 @@
                             <a href="#" class="profile-item">
                                 <i class="fas fa-cog"></i>
                                 Configurações
+                            </a>
+                            <a href="/politicas" class="profile-item">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                                Políticas
                             </a>
                             <a href="#" class="profile-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="fas fa-sign-out-alt"></i>
@@ -588,6 +648,27 @@
                     e.stopPropagation();
                 });
             }
+            
+            // Função para atualizar o contador do carrinho na navbar
+            window.updateNavbarCartCount = function(count) {
+                const cartBadge = document.getElementById('navbar-cart-count');
+                if (cartBadge) {
+                    if (count > 0) {
+                        cartBadge.textContent = count;
+                        cartBadge.classList.remove('empty');
+                        cartBadge.style.display = 'flex';
+                        cartBadge.classList.add('pulse');
+                        setTimeout(() => cartBadge.classList.remove('pulse'), 600);
+                    } else {
+                        cartBadge.classList.add('empty');
+                        cartBadge.style.display = 'none';
+                    }
+                }
+            };
+            
+            // Inicializar o contador do carrinho
+            const initialCount = {{ session('carrinho_count', 0) }};
+            updateNavbarCartCount(initialCount);
         });
         
         // Função para demonstração - alternar estado de autenticação

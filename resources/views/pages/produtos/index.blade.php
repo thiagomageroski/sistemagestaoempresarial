@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos - Sistema de Gestão</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         :root {
             --primary-color: #4361ee;
@@ -197,7 +198,7 @@
         }
 
         .search-input::placeholder {
-            color: var(--text-muted);
+            placeholder: "Buscar produtos...";
         }
 
         .search-btn {
@@ -436,35 +437,9 @@
             box-shadow: 0 0 0 2px var(--primary-light);
         }
 
-        /* Badge de contador do carrinho - CORRIGIDO */
+        /* Badge de contador do carrinho - REMOVIDO */
         .cart-count-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: linear-gradient(135deg, var(--danger-color), #e5366a);
-            color: white;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 800;
-            z-index: 1001;
-            box-shadow: 0 3px 10px rgba(239, 71, 111, 0.4);
-            border: 2px solid #ffffff;
-            animation: bounceIn 0.5s ease;
-        }
-
-        .cart-count-badge:hover {
-            transform: scale(1.15);
-            box-shadow: 0 6px 20px rgba(239, 71, 111, 0.5);
-        }
-
-        .cart-count-badge.show {
-            display: flex;
-            animation: bounceIn 0.5s ease;
+            display: none !important;
         }
 
         .nav-cart-container {
@@ -546,6 +521,8 @@
 
         .cart-toast-content {
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .cart-toast-title {
@@ -692,14 +669,6 @@
             .filter-group {
                 width: 100%;
             }
-
-            .cart-count-badge {
-                top: 90px;
-                right: 20px;
-                width: 24px;
-                height: 24px;
-                font-size: 0.7rem;
-            }
         }
 
         @media (max-width: 576px) {
@@ -726,14 +695,6 @@
 
             .page-title::before {
                 width: 4px;
-            }
-
-            .cart-count-badge {
-                top: 80px;
-                right: 15px;
-                width: 22px;
-                height: 22px;
-                font-size: 0.65rem;
             }
         }
 
@@ -780,13 +741,9 @@
                 <span class="filter-label">Categoria:</span>
                 <select class="filter-select" id="category-filter">
                     <option value="all">Todas</option>
-                    <option value="Áudio">Áudio</option>
-                    <option value="Wearables">Wearables</option>
-                    <option value="Computadores">Computadores</option>
-                    <option value="Periféricos">Periféricos</option>
-                    <option value="Gaming">Gaming</option>
-                    <option value="Smartphones">Smartphones</option>
-                    <option value="Tablets">Tablets</option>
+                    @foreach($categorias as $categoria)
+                        <option value="{{ $categoria }}">{{ $categoria }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="filter-group">
@@ -801,230 +758,56 @@
         </div>
 
         <!-- Alertas -->
+        @if(session('success'))
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ session('error') }}
+            </div>
+        @endif
 
         <!-- Grid de produtos -->
         <div class="products-grid" id="products-container">
-            <!-- Produto 1 -->
-            <div class="product-card" data-category="Áudio" data-price="599.90" data-popularity="5">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Fone de Ouvido Premium">
-                    <div class="product-badge">Popular</div>
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="1"
-                        data-product-name="Fone de Ouvido Premium com Cancelamento de Ruído" data-product-price="599.90"
-                        data-product-image="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80">
-                        <i class="fas fa-cart-plus"></i>
+            @foreach($produtos as $produto)
+                <div class="product-card" data-category="{{ $produto['categoria'] }}" data-price="{{ $produto['preco'] }}"
+                    data-popularity="{{ $produto['destaque'] ? 5 : 3 }}">
+                    <div class="product-image">
+                        <img src="{{ $produto['imagem'] }}" alt="{{ $produto['nome'] }}">
+                        @if($produto['destaque'])
+                            <div class="product-badge">Destaque</div>
+                        @endif
+                        <!-- FORMULÁRIO CORRETO PARA ADICIONAR AO CARRINHO -->
+                        <form action="{{ route('carrinho.adicionar') }}" method="POST" class="cart-form">
+                            @csrf
+                            <input type="hidden" name="produto_id" value="{{ $produto['id'] }}">
+                            <input type="hidden" name="quantidade" value="1">
+                            <button type="submit" class="cart-icon-floating">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="product-body">
+                        <h5 class="product-title">{{ $produto['nome'] }}</h5>
+                        <p class="product-category">
+                            <i class="fas fa-tag"></i> {{ $produto['categoria'] }}
+                        </p>
+                        <p class="product-price">
+                            <span class="price-currency">R$</span> {{ number_format($produto['preco'], 2, ',', '.') }}
+                        </p>
+                        <div class="product-action">
+                            <a href="{{ route('produtos.show', $produto['slug']) }}" class="btn-primary">
+                                <i class="fas fa-eye"></i> Ver detalhes
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="product-body">
-                    <h5 class="product-title">Fone de Ouvido Premium com Cancelamento de Ruído</h5>
-                    <p class="product-category">
-                        <i class="fas fa-headphones"></i> Áudio
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 599,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Produto 2 -->
-            <div class="product-card" data-category="Wearables" data-price="399.90" data-popularity="4">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Smartwatch Inteligente">
-                    <div class="product-badge">-20%</div>
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="2"
-                        data-product-name="Smartwatch Inteligente com Monitor Cardíaco" data-product-price="399.90"
-                        data-product-image="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                </div>
-                <div class="product-body">
-                    <h5 class="product-title">Smartwatch Inteligente com Monitor Cardíaco</h5>
-                    <p class="product-category">
-                        <i class="fas fa-clock"></i> Wearables
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 399,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Produto 3 -->
-            <div class="product-card" data-category="Áudio" data-price="299.90" data-popularity="3">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Caixa de Som Bluetooth">
-                    <div class="product-badge">Novo</div>
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="3"
-                        data-product-name="Caixa de Som Bluetooth à Prova D'água" data-product-price="299.90"
-                        data-product-image="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                </div>
-                <div class="product-body">
-                    <h5 class="product-title">Caixa de Som Bluetooth à Prova D'água</h5>
-                    <p class="product-category">
-                        <i class="fas fa-music"></i> Áudio
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 299,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Produto 4 -->
-            <div class="product-card" data-category="Computadores" data-price="4299.90" data-popularity="4">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Notebook Ultrafino">
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="4"
-                        data-product-name="Notebook Ultrafino 15.6' 16GB RAM" data-product-price="4299.90"
-                        data-product-image="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                </div>
-                <div class="product-body">
-                    <h5 class="product-title">Notebook Ultrafino 15.6" 16GB RAM</h5>
-                    <p class="product-category">
-                        <i class="fas fa-laptop"></i> Computadores
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 4.299,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Produto 5 -->
-            <div class="product-card" data-category="Periféricos" data-price="499.90" data-popularity="5">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Teclado Mecânico">
-                    <div class="product-badge">Promoção</div>
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="5"
-                        data-product-name="Teclado Mecânico RGB Switch Azul" data-product-price="499.90"
-                        data-product-image="https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                </div>
-                <div class="product-body">
-                    <h5 class="product-title">Teclado Mecânico RGB Switch Azul</h5>
-                    <p class="product-category">
-                        <i class="fas fa-keyboard"></i> Periféricos
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 499,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Produto 6 -->
-            <div class="product-card" data-category="Gaming" data-price="349.90" data-popularity="4">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Headphone Gaming">
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="6"
-                        data-product-name="Headphone Gaming 7.1 Surround Sound" data-product-price="349.90"
-                        data-product-image="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                </div>
-                <div class="product-body">
-                    <h5 class="product-title">Headphone Gaming 7.1 Surround Sound</h5>
-                    <p class="product-category">
-                        <i class="fas fa-headset"></i> Gaming
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 349,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Produto 7 - Smartphone -->
-            <div class="product-card" data-category="Smartphones" data-price="2899.90" data-popularity="5">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1708622366440-5ac82d30da10?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt="Smartphone Premium">
-                    <div class="product-badge">Lançamento</div>
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="7"
-                        data-product-name="Smartphone Premium 256GB Câmera Tripla 108MP" data-product-price="2899.90"
-                        data-product-image="https://images.unsplash.com/photo-1708622366440-5ac82d30da10?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                </div>
-                <div class="product-body">
-                    <h5 class="product-title">Smartphone Premium 256GB Câmera Tripla 108MP</h5>
-                    <p class="product-category">
-                        <i class="fas fa-mobile-alt"></i> Smartphones
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 2.899,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Produto 8 - Tablet -->
-            <div class="product-card" data-category="Tablets" data-price="1899.90" data-popularity="4">
-                <div class="product-image">
-                    <img src="https://images.unsplash.com/photo-1561154464-82e9adf32764?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Tablet Premium">
-                    <div class="product-badge">Oferta</div>
-                    <div class="cart-icon-floating" onclick="addToCart(this)" data-product-id="8"
-                        data-product-name="Tablet Premium 10.9' 256GB com Caneta Stylus" data-product-price="1899.90"
-                        data-product-image="https://images.unsplash.com/photo-1561154464-82e9adf32764?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                </div>
-                <div class="product-body">
-                    <h5 class="product-title">Tablet Premium 10.9" 256GB com Caneta Stylus</h5>
-                    <p class="product-category">
-                        <i class="fas fa-tablet-alt"></i> Tablets
-                    </p>
-                    <p class="product-price">
-                        <span class="price-currency">R$</span> 1.899,90
-                    </p>
-                    <div class="product-action">
-                        <a href="#" class="btn-primary">
-                            <i class="fas fa-shopping-cart"></i> Ver detalhes
-                        </a>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
 
         <!-- Estado vazio -->
@@ -1042,17 +825,14 @@
     @include('partials.footer')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>
     <script>
-        // Variável global para contar itens no carrinho
-        let cartItemCount = 0;
+        // Função para adicionar produto ao carrinho (agora usando formulário)
+        function addToCart(event, element) {
+            event.preventDefault(); // Previne o comportamento padrão do formulário
 
-        // Função para adicionar produto ao carrinho
-        function addToCart(element) {
-            const productId = element.getAttribute('data-product-id');
-            const productName = element.getAttribute('data-product-name');
-            const productPrice = parseFloat(element.getAttribute('data-product-price'));
-            const productImage = element.getAttribute('data-product-image');
+            const form = element.closest('form');
+            const productId = form.querySelector('input[name="produto_id"]').value;
+            const productName = element.closest('.product-card').querySelector('.product-title').textContent;
 
             // Animação de feedback visual
             element.classList.add('added');
@@ -1060,51 +840,11 @@
                 element.classList.remove('added');
             }, 1000);
 
-            // Incrementar contador
-            cartItemCount++;
-            updateCartCount();
-
             // Mostrar notificação
             showToast('Produto adicionado!', `${productName} foi adicionado ao carrinho.`);
 
-            // Enviar para o carrinho (AJAX)
-            addToCartBackend(productId, productName, productPrice, productImage);
-        }
-
-        // Função para atualizar o contador do carrinho - CORRIGIDA
-        function updateCartCount() {
-            let badge = document.getElementById('cart-count-badge');
-
-            if (!badge) {
-                // Tenta encontrar o container do carrinho na navbar
-                const cartContainer = document.querySelector('.nav-link-cart') ||
-                    document.querySelector('a[href*="carrinho"]') ||
-                    document.querySelector('a:has(.fa-shopping-cart)');
-
-                if (cartContainer) {
-                    badge = document.createElement('div');
-                    badge.id = 'cart-count-badge';
-                    badge.className = 'cart-count-badge';
-                    cartContainer.appendChild(badge);
-                } else {
-                    // Fallback: cria flutuante se não encontrar navbar
-                    badge = document.createElement('div');
-                    badge.id = 'cart-count-badge';
-                    badge.className = 'cart-count-badge';
-                    badge.style.position = 'fixed';
-                    badge.style.top = '100px';
-                    badge.style.right = '30px';
-                    document.body.appendChild(badge);
-                }
-            }
-
-            badge.textContent = cartItemCount;
-
-            if (cartItemCount > 0) {
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
+            // Enviar o formulário - o contador será atualizado pelo backend via sessão
+            form.submit();
         }
 
         // Função para mostrar notificação toast
@@ -1143,32 +883,6 @@
                     }
                 }, 300);
             }, 3000);
-        }
-
-        // Função para enviar para o backend (AJAX)
-        function addToCartBackend(productId, productName, productPrice, productImage) {
-            // Usando Fetch API para enviar requisição AJAX
-            fetch(`/carrinho/adicionar/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    nome: productName,
-                    preco: productPrice,
-                    imagem: productImage
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Produto adicionado ao carrinho:', data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao adicionar ao carrinho:', error);
-                });
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1281,18 +995,17 @@
             // Inicializar a filtragem
             filterProducts();
 
-            // Inicializar contador do carrinho
-            updateCartCount();
-
             // Adicionar evento de clique para os botões "Ver detalhes"
-            document.querySelectorAll('.btn-primary').forEach(button => {
-                button.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const card = this.closest('.product-card');
-                    const cartIcon = card.querySelector('.cart-icon-floating');
-                    if (cartIcon) {
-                        addToCart(cartIcon);
-                    }
+            document.querySelectorAll('.cart-icon-floating').forEach(icon => {
+                icon.addEventListener('click', function (e) {
+                    addToCart(e, this);
+                });
+            });
+
+            // Adicionar evento de clique para os ícones do carrinho
+            document.querySelectorAll('.cart-icon-floating').forEach(icon => {
+                icon.addEventListener('click', function (e) {
+                    addToCart(e, this);
                 });
             });
         });
