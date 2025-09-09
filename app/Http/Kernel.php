@@ -7,7 +7,6 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 class Kernel extends HttpKernel
 {
     protected $middleware = [
-        // \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
@@ -46,9 +45,9 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        
-        // Middlewares personalizados
         'check.auth' => \App\Http\Middleware\CheckAuth::class,
         'custom.auth' => \App\Http\Middleware\CustomAuth::class,
+        'verificar.carrinho' => \App\Http\Middleware\VerificarCarrinho::class,
+        'verificar.pedido.finalizado' => \App\Http\Middleware\VerificarPedidoFinalizado::class, // ADICIONE ESTA LINHA
     ];
 }

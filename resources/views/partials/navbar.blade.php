@@ -533,7 +533,7 @@
                                 <i class="fas fa-shopping-bag"></i>
                                 Minhas Compras
                             </a>
-                            <a href="#" class="profile-item">
+                            <a href="/configuracoes" class="profile-item">
                                 <i class="fas fa-cog"></i>
                                 Configurações
                             </a>

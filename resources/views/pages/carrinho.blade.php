@@ -275,11 +275,15 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 2rem;
+            text-decoration: none;
+            display: block;
+            text-align: center;
         }
 
         .checkout-btn-modern:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            color: white;
         }
 
         /* Empty Cart */
@@ -574,10 +578,10 @@
                         <span class="total-label-modern">Total</span>
                         <span class="total-value-modern" id="totalValue">R$ {{ number_format($total, 2, ',', '.') }}</span>
                     </div>
-                    <button class="checkout-btn-modern" id="checkoutBtn">
+                    <a href="{{ route('checkout.index') }}" class="checkout-btn-modern" id="checkoutBtn">
                         <i class="fas fa-lock"></i>
                         Finalizar Compra
-                    </button>
+                    </a>
                 </div>
             @endif
 
@@ -897,15 +901,6 @@
             if (e.key === 'Escape') {
                 hideConfirmationModal();
             }
-        });
-
-        // Botão finalizar compra
-        document.getElementById('checkoutBtn')?.addEventListener('click', function () {
-            if (Object.keys(carrinhoData).length === 0) {
-                showToast('Seu carrinho está vazio!', 'error');
-                return;
-            }
-            showToast('Compra finalizada com sucesso!', 'success');
         });
 
         // Inicializar a página

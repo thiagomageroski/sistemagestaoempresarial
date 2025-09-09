@@ -1,13 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\CarrinhoController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Middleware\CustomAuth;
+use App\Http\Middleware\VerificarCarrinho;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +22,9 @@ Route::get('/sobre', [HomeController::class, 'sobre'])->name('sobre');
 Route::get('/politicas', function () {
     return view('pages.politicas');
 })->name('politicas');
+Route::get('/configuracoes', function () {
+    return view('pages.configuracoes');
+})->name('configuracoes');
 
 // Rotas de autenticação (acessíveis apenas para não autenticados)
 Route::middleware([\App\Http\Middleware\CheckAuth::class . ':guest'])->group(function () {
@@ -48,11 +54,43 @@ Route::middleware([CustomAuth::class])->group(function () {
     Route::prefix('carrinho')->group(function () {
         Route::get('/', [CarrinhoController::class, 'index'])->name('carrinho.index');
         Route::post('/adicionar', [CarrinhoController::class, 'adicionar'])->name('carrinho.adicionar');
-        Route::delete('/remover/{produtoId}', [CarrinhoController::class, 'remover'])->name('carrinho.remover'); // CORRIGIDO
+        Route::delete('/remover/{produtoId}', [CarrinhoController::class, 'remover'])->name('carrinho.remover');
         Route::put('/atualizar/{produtoId}', [CarrinhoController::class, 'atualizar'])->name('carrinho.atualizar');
         Route::post('/limpar', [CarrinhoController::class, 'limpar'])->name('carrinho.limpar');
         Route::get('/quantidade', [CarrinhoController::class, 'quantidade'])->name('carrinho.quantidade');
+        Route::get('/verificar-estoque', [CarrinhoController::class, 'verificarEstoque'])->name('carrinho.verificar.estoque');
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Rotas do Checkout (Protegidas - requerem autenticação E produtos no carrinho)
+|--------------------------------------------------------------------------
+*/
+Route::middleware([CustomAuth::class, VerificarCarrinho::class])->group(function () {
+    Route::prefix('checkout')->group(function () {
+        Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');
+        Route::post('/processar', [CheckoutController::class, 'processarPedido'])->name('checkout.processar');
+        Route::get('/confirmacao/{id}', [CheckoutController::class, 'confirmacao'])->name('checkout.confirmacao');
+        Route::post('/atualizar-status/{id}', [CheckoutController::class, 'atualizarStatusPagamento'])->name('checkout.atualizar-status');
+        Route::post('/aplicar-cupom', [CheckoutController::class, 'aplicarCupom'])->name('checkout.aplicar-cupom');
+        Route::post('/remover-cupom', [CheckoutController::class, 'removerCupom'])->name('checkout.remover-cupom');
+        Route::post('/calcular-frete', [CheckoutController::class, 'calcularFrete'])->name('checkout.calcular-frete');
+    });
+});
+
+// Rotas para Meus Pedidos (protegidas - requerem autenticação)
+Route::middleware([CustomAuth::class])->group(function () {
+    Route::get('/meus-pedidos', [CheckoutController::class, 'meusPedidos'])->name('meus.pedidos');
+    Route::get('/meus-pedidos/{id}', [CheckoutController::class, 'detalhesPedido'])->name('detalhes.pedido');
+});
+
+// Rota para página de sucesso na compra (PROTEGIDA - requer autenticação E pedido finalizado)
+Route::middleware([CustomAuth::class, 'verificar.pedido.finalizado'])->group(function () {
+    Route::get('/sucesso', function () {
+        $user = Session::get('user');
+        return view('pages.produtos.sucesso', compact('user'));
+    })->name('sucesso');
 });
 
 // Rotas para desenvolvimento (podem ser removidas em produção)
@@ -90,6 +128,14 @@ Route::middleware([CustomAuth::class])->prefix('admin')->group(function () {
 Route::get('/api/metricas', [AdminController::class, 'metricas'])->name('api.metricas');
 Route::get('/api/vendas-recentes', [AdminController::class, 'vendasRecentes'])->name('api.vendas.recentes');
 Route::get('/api/produtos-populares', [ProdutoController::class, 'populares'])->name('api.produtos.populares');
+
+// Rota para alternar o tema
+Route::post('/toggle-theme', function () {
+    $theme = session()->get('theme', 'light');
+    $newTheme = $theme === 'light' ? 'dark' : 'light';
+    session(['theme' => $newTheme]);
+    return response()->json(['theme' => $newTheme]);
+})->name('toggle-theme');
 
 /*
 |--------------------------------------------------------------------------
