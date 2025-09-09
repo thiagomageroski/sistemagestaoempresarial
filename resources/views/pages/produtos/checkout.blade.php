@@ -742,12 +742,14 @@
             font-weight: 600;
             color: var(--dark);
             margin-bottom: 1rem;
+            text-align: center;
         }
 
         .empty-cart p {
             color: var(--dark-gray);
             margin-bottom: 2rem;
             font-size: 1.1rem;
+            text-align: center;
         }
 
         /* Responsive Adjustments */
@@ -850,11 +852,11 @@
                             <div class="form-group">
                                 <label for="email">E-mail</label>
                                 <input type="email" id="email" class="form-control" placeholder="Seu e-mail"
-                                    value="{{ $user['email'] ?? '' }}">
+                                    value="{{ $user['email'] ?? '' }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="phone">Telefone</label>
-                                <input type="tel" id="phone" class="form-control" placeholder="(11) 99999-9999">
+                                <input type="tel" id="phone" class="form-control" placeholder="(11) 99999-9999" required>
                             </div>
                         </div>
 
@@ -867,21 +869,21 @@
                             <div class="form-group">
                                 <label for="fullname">Nome Completo</label>
                                 <input type="text" id="fullname" class="form-control" placeholder="Seu nome completo"
-                                    value="{{ $user['name'] ?? '' }}">
+                                    value="{{ $user['name'] ?? '' }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="address">Endereço</label>
                                 <input type="text" id="address" class="form-control"
-                                    placeholder="Rua, número e complemento">
+                                    placeholder="Rua, número e complemento" required>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="city">Cidade</label>
-                                    <input type="text" id="city" class="form-control" placeholder="Sua cidade">
+                                    <input type="text" id="city" class="form-control" placeholder="Sua cidade" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="state">Estado</label>
-                                    <select id="state" class="form-control">
+                                    <select id="state" class="form-control" required>
                                         <option value="">Selecione o estado</option>
                                         <option value="AC">Acre</option>
                                         <option value="AL">Alagoas</option>
@@ -916,11 +918,11 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="zipcode">CEP</label>
-                                    <input type="text" id="zipcode" class="form-control" placeholder="00000-000">
+                                    <input type="text" id="zipcode" class="form-control" placeholder="00000-000" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="neighborhood">Bairro</label>
-                                    <input type="text" id="neighborhood" class="form-control" placeholder="Seu bairro">
+                                    <input type="text" id="neighborhood" class="form-control" placeholder="Seu bairro" required>
                                 </div>
                             </div>
                         </div>
@@ -955,26 +957,26 @@
                                 <div class="form-group">
                                     <label for="card-number">Número do Cartão</label>
                                     <input type="text" id="card-number" class="form-control"
-                                        placeholder="0000 0000 0000 0000">
+                                        placeholder="0000 0000 0000 0000" required>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="card-name">Nome no Cartão</label>
-                                        <input type="text" id="card-name" class="form-control" placeholder="Como no cartão">
+                                        <input type="text" id="card-name" class="form-control" placeholder="Como no cartão" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="card-expiry">Validade</label>
-                                        <input type="text" id="card-expiry" class="form-control" placeholder="MM/AA">
+                                        <input type="text" id="card-expiry" class="form-control" placeholder="MM/AA" required>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="card-cvv">CVV</label>
-                                        <input type="text" id="card-cvv" class="form-control" placeholder="000">
+                                        <input type="text" id="card-cvv" class="form-control" placeholder="000" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="card-installments">Parcelas</label>
-                                        <select id="card-installments" class="form-control">
+                                        <select id="card-installments" class="form-control" required>
                                             <option value="1">1x de R$ {{ number_format($total, 2, ',', '.') }} sem juros
                                             </option>
                                             <option value="2">2x de R$ {{ number_format($total / 2, 2, ',', '.') }} sem
@@ -1013,17 +1015,17 @@
                                 <p>Para finalizar o pagamento via PIX, preencha os dados abaixo:</p>
                                 <div class="form-group mt-3">
                                     <label for="pix-cpf">CPF</label>
-                                    <input type="text" id="pix-cpf" class="form-control" placeholder="000.000.000-00">
+                                    <input type="text" id="pix-cpf" class="form-control" placeholder="000.000.000-00" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="pix-name">Nome Completo</label>
                                     <input type="text" id="pix-name" class="form-control"
-                                        placeholder="Seu nome completo como no CPF">
+                                        placeholder="Seu nome completo como no CPF" required>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Formulário de Checkout - MODIFICADO PARA REDIRECIONAR PARA CONFIRMAÇÃO -->
+                        <!-- Formulário de Checkout - MODIFICADO PARA REDIRECIONAR PARA SUCESSO -->
                         <form action="{{ route('checkout.processar') }}" method="POST" id="checkoutForm">
                             @csrf
                             <input type="hidden" name="metodo_pagamento" id="metodoPagamento" value="cartao">
@@ -1153,7 +1155,7 @@
                         <i class="fas fa-shopping-cart"></i>
                     </div>
                     <h3>Seu carrinho está vazio</h3>
-                    <p class="text-muted mb-4">Adicione produtos ao carrinho antes de finalizar a compra</p>
+                    <p>Adicione produtos ao carrinho antes de finalizar a compra</p>
                     <a href="{{ route('produtos.index') }}" class="btn">
                         <i class="fas fa-shopping-bag"></i>
                         Continuar Comprando
@@ -1242,9 +1244,9 @@
 
             // Validação do formulário - CORREÇÃO PRINCIPAL AQUI
             checkoutForm.addEventListener('submit', function (e) {
-                e.preventDefault(); // Prevenir envio padrão
-
+                // Validar o formulário antes de enviar
                 if (!validarFormulario()) {
+                    e.preventDefault(); // Só previne o envio se a validação falhar
                     mostrarToast('Por favor, preencha todos os campos obrigatórios.', 'error');
                     return;
                 }
@@ -1270,12 +1272,11 @@
                     document.getElementById('pixNomeInput').value = document.getElementById('pix-name').value;
                 }
 
+                // Mostrar loading
                 showLoading();
-
-                // CORREÇÃO: Remover o event listener temporariamente e enviar o formulário normalmente
-                // Isso evita o loop infinito e permite o redirecionamento normal do Laravel
-                checkoutForm.removeEventListener('submit', arguments.callee);
-                checkoutForm.submit();
+                
+                // O formulário será enviado normalmente para o Laravel
+                // O Laravel processará e redirecionará para a rota /sucesso
             });
 
             // Funções

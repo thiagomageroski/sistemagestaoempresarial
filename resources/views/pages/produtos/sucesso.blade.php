@@ -336,45 +336,78 @@
                 <div class="order-details">
                     <h2 class="detail-title">Detalhes do Pedido</h2>
                     
-                    <div class="detail-item">
-                        <span class="detail-label">Número do Pedido:</span>
-                        <span class="detail-value">#PED20231201001</span>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <span class="detail-label">Data da Compra:</span>
-                        <span class="detail-value">01/12/2023 às 14:30</span>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <span class="detail-label">Método de Pagamento:</span>
-                        <span class="detail-value">Cartão de Crédito</span>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <span class="detail-label">Total Pago:</span>
-                        <span class="detail-value">R$ 599,90</span>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <span class="detail-label">Status:</span>
-                        <span class="detail-value" style="color: var(--secondary);">Pagamento Aprovado</span>
-                    </div>
-                    
-                    <div class="product-list">
-                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--dark);">Produtos:</h3>
-                        
-                        <div class="product-item">
-                            <div class="product-image">
-                                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Fone de Ouvido">
-                            </div>
-                            <div class="product-info">
-                                <div class="product-name">Fone de Ouvido Premium</div>
-                                <div class="product-price">R$ 599,90</div>
-                                <div class="product-quantity">Quantidade: 1</div>
-                            </div>
+                    @if(isset($ultimoPedido))
+                        <div class="detail-item">
+                            <span class="detail-label">Número do Pedido:</span>
+                            <span class="detail-value">{{ $ultimoPedido['numero'] ?? 'N/A' }}</span>
                         </div>
-                    </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Data da Compra:</span>
+                            <span class="detail-value">{{ $ultimoPedido['data'] ?? now()->format('d/m/Y H:i:s') }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Método de Pagamento:</span>
+                            <span class="detail-value">{{ ucfirst($ultimoPedido['metodo_pagamento'] ?? 'N/A') }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Subtotal:</span>
+                            <span class="detail-value">R$ {{ number_format($ultimoPedido['subtotal'] ?? 0, 2, ',', '.') }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Frete:</span>
+                            <span class="detail-value">R$ {{ number_format($ultimoPedido['frete'] ?? 0, 2, ',', '.') }}</span>
+                        </div>
+                        
+                        @if(($ultimoPedido['desconto'] ?? 0) > 0)
+                        <div class="detail-item">
+                            <span class="detail-label">Desconto:</span>
+                            <span class="detail-value" style="color: var(--secondary);">-R$ {{ number_format($ultimoPedido['desconto'] ?? 0, 2, ',', '.') }}</span>
+                        </div>
+                        @endif
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Total Pago:</span>
+                            <span class="detail-value">R$ {{ number_format($ultimoPedido['total'] ?? 0, 2, ',', '.') }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value" style="color: var(--secondary);">
+                                @if(($ultimoPedido['status'] ?? '') === 'aguardando_pagamento')
+                                    Aguardando Pagamento
+                                @else
+                                    Pagamento Aprovado
+                                @endif
+                            </span>
+                        </div>
+                        
+                        <div class="product-list">
+                            <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--dark);">Produtos:</h3>
+                            
+                            @if(isset($ultimoPedido['itens']) && count($ultimoPedido['itens']) > 0)
+                                @foreach($ultimoPedido['itens'] as $item)
+                                    <div class="product-item">
+                                        <div class="product-image">
+                                            <img src="{{ $item['imagem'] }}" alt="{{ $item['nome'] }}">
+                                        </div>
+                                        <div class="product-info">
+                                            <div class="product-name">{{ $item['nome'] }}</div>
+                                            <div class="product-price">R$ {{ number_format($item['preco'], 2, ',', '.') }}</div>
+                                            <div class="product-quantity">Quantidade: {{ $item['quantidade'] }}</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p style="color: #6b7280; text-align: center;">Nenhum produto encontrado</p>
+                            @endif
+                        </div>
+                    @else
+                        <p style="color: #6b7280; text-align: center;">Informações do pedido não disponíveis</p>
+                    @endif
                 </div>
                 
                 <div class="whatsapp-notification">
@@ -390,7 +423,7 @@
                         <i class="fas fa-shopping-bag"></i>
                         Continuar Comprando
                     </a>
-                    <a href="{{ route('meus.pedidos') }}" class="btn btn-primary">
+                    <a href="{{ route('minhas.compras') }}" class="btn btn-primary">
                         <i class="fas fa-clipboard-list"></i>
                         Ver Meus Pedidos
                     </a>
@@ -402,6 +435,7 @@
     <!-- Footer -->
     @include('partials.footer')
 
+    <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>
     <script>
         // Adiciona animação de confetti
         document.addEventListener('DOMContentLoaded', function() {

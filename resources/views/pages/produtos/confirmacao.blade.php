@@ -304,7 +304,7 @@
 
                         <!-- Action Buttons -->
                         <div class="border-t border-gray-200 pt-6 space-y-4">
-                            <a href="{{ route('meus.pedidos') }}" 
+                            <a href="{{ route('minhas.compras') }}" 
                                 class="block w-full btn-secondary text-white py-4 rounded-xl font-semibold text-center">
                                 <i class="fas fa-list mr-2"></i> Meus Pedidos
                             </a>
@@ -326,6 +326,7 @@
     @include('partials.footer')
 
     @if($pedido['metodo_pagamento'] === 'pix' && $pedido['status'] === 'aguardando_pagamento')
+    <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>
     <script>
     function copiarPixCode() {
         const pixCode = document.getElementById('pixCode');

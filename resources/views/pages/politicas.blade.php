@@ -350,6 +350,7 @@
     <!-- Footer - INCLUÍDO SEM ALTERAÇÕES -->
     @include('partials.footer')
 
+    <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Adicionar a classe active ao link da navbar

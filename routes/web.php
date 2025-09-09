@@ -30,14 +30,12 @@ Route::get('/configuracoes', function () {
 Route::middleware([\App\Http\Middleware\CheckAuth::class . ':guest'])->group(function () {
     Route::get('/cadastro', [HomeController::class, 'cadastro'])->name('cadastro');
     Route::get('/login', [HomeController::class, 'login'])->name('login');
-    Route::get('/admin/login', [AuthController::class, 'showAdminLoginForm'])->name('admin.login');
 });
 
 // Rotas de autenticação (POST) - acessíveis a todos
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/cadastro', [AuthController::class, 'register'])->name('register');
-Route::post('/admin/login', [AuthController::class, 'adminLogin'])->name('admin.login.post');
 
 // Rotas de produtos (públicas)
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
@@ -79,17 +77,21 @@ Route::middleware([CustomAuth::class, VerificarCarrinho::class])->group(function
     });
 });
 
-// Rotas para Meus Pedidos (protegidas - requerem autenticação)
+// Rotas para Minhas Compras (protegidas - requerem autenticação) - ALTERADO para /minhascompras
 Route::middleware([CustomAuth::class])->group(function () {
-    Route::get('/meus-pedidos', [CheckoutController::class, 'meusPedidos'])->name('meus.pedidos');
-    Route::get('/meus-pedidos/{id}', [CheckoutController::class, 'detalhesPedido'])->name('detalhes.pedido');
+    Route::get('/minhascompras', [CheckoutController::class, 'meusPedidos'])->name('minhas.compras');
+    Route::get('/minhascompras/{id}', [CheckoutController::class, 'detalhesPedido'])->name('detalhes.compra');
+    Route::post('/minhascompras/filtrar', [CheckoutController::class, 'filtrar'])->name('filtrar.compras');
 });
 
 // Rota para página de sucesso na compra (PROTEGIDA - requer autenticação E pedido finalizado)
-Route::middleware([CustomAuth::class, 'verificar.pedido.finalizado'])->group(function () {
+Route::middleware([CustomAuth::class, \App\Http\Middleware\VerificarPedidoFinalizado::class])->group(function () {
     Route::get('/sucesso', function () {
         $user = Session::get('user');
-        return view('pages.produtos.sucesso', compact('user'));
+        $pedidos = Session::get('pedidos', []);
+        $ultimoPedido = end($pedidos);
+        
+        return view('pages.produtos.sucesso', compact('user', 'ultimoPedido'));
     })->name('sucesso');
 });
 

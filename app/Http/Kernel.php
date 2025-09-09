@@ -48,6 +48,6 @@ class Kernel extends HttpKernel
         'check.auth' => \App\Http\Middleware\CheckAuth::class,
         'custom.auth' => \App\Http\Middleware\CustomAuth::class,
         'verificar.carrinho' => \App\Http\Middleware\VerificarCarrinho::class,
-        'verificar.pedido.finalizado' => \App\Http\Middleware\VerificarPedidoFinalizado::class, // ADICIONE ESTA LINHA
+        'verificar.pedido.finalizado' => \App\Http\Middleware\VerificarPedidoFinalizado::class,
     ];
 }

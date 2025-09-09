@@ -24,9 +24,6 @@ class VerificarPedidoFinalizado
                 ->with('error', 'Acesso não autorizado. Complete uma compra para acessar esta página.');
         }
 
-        // Limpar a flag após o acesso (opcional - para permitir apenas um acesso)
-        // Session::forget('pedido_finalizado');
-
         return $next($request);
     }
 }

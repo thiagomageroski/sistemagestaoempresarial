@@ -489,7 +489,7 @@
                     <!-- Opções apenas para usuários autenticados -->
                     @if($auth)
                     <li class="nav-item nav-item-minimal">
-                        <a class="nav-link-minimal {{ request()->is('minhas-compras*') ? 'active' : '' }}" href="#">
+                        <a class="nav-link-minimal {{ request()->is('minhas-compras*') ? 'active' : '' }}" href="/minhascompras">
                             <i class="fas fa-shopping-bag"></i>
                             Minhas Compras
                         </a>
@@ -529,7 +529,7 @@
                                 <i class="fas fa-user-circle"></i>
                                 Meu Perfil
                             </a>
-                            <a href="#" class="profile-item">
+                            <a href="/minhascompras" class="profile-item">
                                 <i class="fas fa-shopping-bag"></i>
                                 Minhas Compras
                             </a>

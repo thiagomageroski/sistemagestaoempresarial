@@ -276,12 +276,18 @@ class CheckoutController extends Controller
             $pedidos[$numeroPedido] = $pedido;
             Session::put('pedidos', $pedidos);
 
+            // GARANTIR que o pedido é salvo com o email correto do usuário logado
+            if (!isset($pedidos[$numeroPedido]['cliente']['email'])) {
+                $pedidos[$numeroPedido]['cliente']['email'] = $user['email'];
+                Session::put('pedidos', $pedidos);
+            }
+
             // Também salvar em arquivo para persistência
-            $salvo = $this->salvarPedidoArquivo($pedido);
+            $salvo = $this->salvarPedidoArquivo($pedidos[$numeroPedido]);
 
             if (!$salvo) {
                 Log::error('Falha ao salvar pedido no arquivo: ' . $numeroPedido);
-                // Continuar mesmo com falha no arquivo, pois temos na sessão
+                // Continuar mesmo dengan falha no arquivo, pois temos na sessão
             }
 
             // Limpar carrinho, frete e desconto
@@ -365,26 +371,35 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Carrega pedidos do arquivo JSON
+     * Carrega pedidos do arquivo JSON - CORRIGIDO
      */
     private function carregarPedidosArquivo()
     {
         try {
             $pedidosFile = 'pedidos.json';
+            $path = storage_path('app/' . $pedidosFile);
 
-            if (Storage::exists($pedidosFile)) {
-                $content = Storage::get($pedidosFile);
-                $pedidos = json_decode($content, true);
-
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    return $pedidos ?: [];
-                }
-
-                Log::warning('JSON corrompido ao carregar pedidos do arquivo');
+            if (!file_exists($path)) {
                 return [];
             }
 
-            return [];
+            $content = file_get_contents($path);
+
+            // Verificar se o conteúdo está vazio
+            if (empty(trim($content))) {
+                return [];
+            }
+
+            $pedidos = json_decode($content, true);
+
+            // Verificar se o JSON foi decodificado corretamente e é um array
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($pedidos)) {
+                Log::warning('JSON corrompido ou inválido em pedidos.json');
+                return [];
+            }
+
+            return $pedidos;
+
         } catch (\Exception $e) {
             Log::error('Erro ao carregar pedidos do arquivo: ' . $e->getMessage());
             return [];
@@ -401,6 +416,13 @@ class CheckoutController extends Controller
         // Buscar pedido na sessão e no arquivo
         $pedidosSessao = Session::get('pedidos', []);
         $pedidosArquivo = $this->carregarPedidosArquivo();
+
+        // Garantir que ambos sejam arrays
+        if (!is_array($pedidosSessao))
+            $pedidosSessao = [];
+        if (!is_array($pedidosArquivo))
+            $pedidosArquivo = [];
+
         $pedidos = array_merge($pedidosSessao, $pedidosArquivo);
 
         if (!isset($pedidos[$id])) {
@@ -615,36 +637,64 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Lista de pedidos do usuário
+     * Lista de pedidos do usuário - CORRIGIDO com $minhasCompras
      */
     public function meusPedidos()
     {
         if (!Session::get('user')) {
-            return redirect()->route('login')->with('error', 'Faça login para visualizar seus pedidos.');
+            return redirect()->route('login')->with('error', 'Faça login para visualizar suas compras.');
         }
 
         $user = Session::get('user');
 
-        // Buscar pedidos da sessão e do arquivo
+        // Buscar pedidos da sessão - garantindo que seja array
         $pedidosSessao = Session::get('pedidos', []);
+        if (!is_array($pedidosSessao)) {
+            $pedidosSessao = [];
+        }
+
+        // Buscar pedidos do arquivo - garantindo que seja array
         $pedidosArquivo = $this->carregarPedidosArquivo();
+        if (!is_array($pedidosArquivo)) {
+            $pedidosArquivo = [];
+        }
+
+        // Combinar pedidos
         $todosPedidos = array_merge($pedidosSessao, $pedidosArquivo);
 
         // Filtrar pedidos por email do usuário
-        $meusPedidos = array_filter($todosPedidos, function ($pedido) use ($user) {
-            return $pedido['cliente']['email'] === $user['email'];
-        });
+        $minhasCompras = [];
+        foreach ($todosPedidos as $pedido) {
+            // Verificar se a estrutura do pedido é válida
+            if (
+                is_array($pedido) &&
+                isset($pedido['cliente']['email']) &&
+                $pedido['cliente']['email'] === $user['email']
+            ) {
+                $minhasCompras[] = $pedido;
+            }
+        }
 
         // Ordenar por data (mais recente primeiro)
-        usort($meusPedidos, function ($a, $b) {
-            return strtotime(str_replace('/', '-', $b['data'])) - strtotime(str_replace('/', '-', $a['data']));
+        usort($minhasCompras, function ($a, $b) {
+            $dataA = isset($a['data']) ? strtotime(str_replace('/', '-', $a['data'])) : 0;
+            $dataB = isset($b['data']) ? strtotime(str_replace('/', '-', $b['data'])) : 0;
+            return $dataB - $dataA;
         });
 
-        return view('pages.produtos.meus-pedidos', compact('meusPedidos', 'user'));
+        // Garantir que $minhasCompras seja sempre um array
+        if (!is_array($minhasCompras)) {
+            $minhasCompras = [];
+        }
+
+        return view('pages.produtos.minhascompras', [
+            'minhasCompras' => $minhasCompras,
+            'user' => $user
+        ]);
     }
 
     /**
-     * Detalhes de um pedido específico
+     * Detalhes de um pedido específico - CORRIGIDO
      */
     public function detalhesPedido($id)
     {
@@ -654,24 +704,101 @@ class CheckoutController extends Controller
 
         $user = Session::get('user');
 
-        // Buscar pedidos da sessão e do arquivo
+        // Buscar pedidos da sessão e do arquivo - CORRIGIDO
         $pedidosSessao = Session::get('pedidos', []);
         $pedidosArquivo = $this->carregarPedidosArquivo();
+
+        // Garantir que ambos sejam arrays
+        if (!is_array($pedidosSessao))
+            $pedidosSessao = [];
+        if (!is_array($pedidosArquivo))
+            $pedidosArquivo = [];
+
         $todosPedidos = array_merge($pedidosSessao, $pedidosArquivo);
 
         if (!isset($todosPedidos[$id])) {
-            return redirect()->route('meus.pedidos')
+            return redirect()->route('minhas.compras')
                 ->with('error', 'Pedido não encontrado!');
         }
 
         $pedido = $todosPedidos[$id];
 
-        // Verificar se o pedido pertence ao usuário
-        if ($pedido['cliente']['email'] !== $user['email']) {
-            return redirect()->route('meus.pedidos')
+        // Verificar se o pedido pertence ao usuário - CORRIGIDO
+        if (!isset($pedido['cliente']['email']) || $pedido['cliente']['email'] !== $user['email']) {
+            return redirect()->route('minhas.compras')
                 ->with('error', 'Você não tem permissão para visualizar este pedido!');
         }
 
-        return view('pages.produtos.detalhes-pedido', compact('pedido', 'user'));
+        return view('pages.produtos.detalhes-compra', compact('pedido', 'user'));
+    }
+
+    /**
+     * Filtra pedidos por critérios específicos
+     */
+    public function filtrar(Request $request)
+    {
+        if (!Session::get('user')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Faça login para visualizar suas compras.'
+            ], 401);
+        }
+
+        $user = Session::get('user');
+        $filtro = $request->input('filtro', 'recentes');
+
+        // Buscar pedidos da sessão e do arquivo
+        $pedidosSessao = Session::get('pedidos', []);
+        $pedidosArquivo = $this->carregarPedidosArquivo();
+
+        // Garantir que ambos sejam arrays
+        if (!is_array($pedidosSessao)) $pedidosSessao = [];
+        if (!is_array($pedidosArquivo)) $pedidosArquivo = [];
+
+        $todosPedidos = array_merge($pedidosSessao, $pedidosArquivo);
+
+        // Filtrar pedidos por email do usuário
+        $minhasCompras = [];
+        foreach ($todosPedidos as $pedido) {
+            if (is_array($pedido) && isset($pedido['cliente']['email']) && $pedido['cliente']['email'] === $user['email']) {
+                $minhasCompras[] = $pedido;
+            }
+        }
+
+        // Aplicar filtro
+        switch ($filtro) {
+            case 'recentes':
+                usort($minhasCompras, function ($a, $b) {
+                    $dataA = isset($a['data']) ? strtotime(str_replace('/', '-', $a['data'])) : 0;
+                    $dataB = isset($b['data']) ? strtotime(str_replace('/', '-', $b['data'])) : 0;
+                    return $dataB - $dataA;
+                });
+                break;
+
+            case 'antigos':
+                usort($minhasCompras, function ($a, $b) {
+                    $dataA = isset($a['data']) ? strtotime(str_replace('/', '-', $a['data'])) : 0;
+                    $dataB = isset($b['data']) ? strtotime(str_replace('/', '-', $b['data'])) : 0;
+                    return $dataA - $dataB;
+                });
+                break;
+
+            case 'valor_maior':
+                usort($minhasCompras, function ($a, $b) {
+                    return ($b['total'] ?? 0) - ($a['total'] ?? 0);
+                });
+                break;
+
+            case 'valor_menor':
+                usort($minhasCompras, function ($a, $b) {
+                    return ($a['total'] ?? 0) - ($b['total'] ?? 0);
+                });
+                break;
+        }
+
+        return response()->json([
+            'success' => true,
+            'compras' => array_values($minhasCompras)
+        ]);
     }
 }
