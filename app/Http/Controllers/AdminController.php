@@ -223,7 +223,7 @@ class AdminController extends Controller
                 ->with('error', 'Acesso não autorizado. Apenas administradores podem acessar esta área.');
         }
 
-        return view('pages.admin.pedidos.index');
+        return view('pages.admin.dashboard');
     }
 
     public function pedidoShow($id)
@@ -261,7 +261,7 @@ class AdminController extends Controller
                 ->with('error', 'Acesso não autorizado. Apenas administradores podem acessar esta área.');
         }
 
-        return view('pages.admin.relatorios.index');
+        return view('pages.admin.dashboard');
     }
 
     public function relatorioVendas()

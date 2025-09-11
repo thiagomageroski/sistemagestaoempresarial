@@ -182,6 +182,6 @@ class ProdutoController extends Controller
     public function adminIndex()
     {
         $produtos = $this->produtos();
-        return view('pages.admin.produtos.index', compact('produtos'));
+        return view('pages.admin.dashboard', compact('produtos'));
     }
 }

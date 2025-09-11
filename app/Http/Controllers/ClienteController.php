@@ -43,7 +43,7 @@ class ClienteController extends Controller
         }
 
         $clientes = $this->clientes();
-        return view('pages.admin.index', compact('clientes'));
+        return view('pages.admin.dashboard', compact('clientes'));
     }
 
     public function show($id)

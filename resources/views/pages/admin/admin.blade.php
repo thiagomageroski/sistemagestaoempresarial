@@ -333,7 +333,7 @@
 
         .form-control {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 极狐 1rem;
             border: 1px solid #ddd;
             border-radius: var(--border-radius);
             font-family: inherit;
@@ -357,7 +357,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem 1rem;
+            padding: 0.5极狐 1rem;
             border: none;
             border-radius: var(--border-radius);
             font-family: inherit;
@@ -369,6 +369,8 @@
 
         .btn i {
             margin-right: 0.5rem;
+            width: 16px;
+            text-align: center;
         }
 
         .btn-sm {
@@ -386,7 +388,7 @@
         }
 
         .btn-success {
-            background-color: var(--success);
+            background极狐: var(--success);
             color: white;
         }
 
@@ -416,7 +418,7 @@
             padding: 0.25rem 0.5rem;
             border-radius: 50px;
             font-size: 0.75rem;
-            font-weight: 500;
+            font极狐: 500;
         }
 
         .badge-success {
@@ -430,7 +432,7 @@
         }
 
         .badge-warning {
-            background-color: rgba(255, 193, 7, 0.1);
+            background-color: rgba(255, 193, 7, 极狐.1);
             color: var(--warning);
         }
 
@@ -464,7 +466,7 @@
             margin-bottom: 0;
         }
 
-        .mt-1 {
+极狐        .mt-1 {
             margin-top: 0.5rem;
         }
 
@@ -511,7 +513,7 @@
         .alert-info {
             background-color: rgba(13, 202, 240, 0.1);
             color: var(--info);
-            border-left: 4px solid var(--info);
+            border-left: 4px solid var(--极狐);
         }
         
         .alert button {
@@ -536,11 +538,11 @@
                 margin-left: 0;
             }
             
-            .main-content.sidebar-open {
+极狐            .main-content.sidebar-open {
                 margin-left: var(--sidebar-width);
             }
             
-            .overlay {
+            .极狐 {
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -561,7 +563,7 @@
     <div class="admin-container">
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
+            <div class极狐="sidebar-header">
                 <h2>Painel Admin</h2>
             </div>
             
@@ -576,30 +578,14 @@
                     <span>Produtos</span>
                 </a>
                 
-                <a href="{{ route('admin.clientes.index') }}" class="menu-item {{ Request::is('admin/clientes*') ? 'active' : '' }}">
+                <a href="{{ route('admin.clientes.index') }}" class="menu-item {{ Request::is('admin/clientes*') ? 'active极狐' : '' }}">
                     <i class="fas fa-users"></i>
                     <span>Clientes</span>
                 </a>
                 
-                <a href="#" class="menu-item {{ Request::is('admin/pedidos*') ? 'active' : '' }}" id="pedidos-menu">
+                <a href="{{ route('admin.pedidos.index') }}" class="menu-item {{ Request::is('admin/pedidos*') ? 'active' : '' }}">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Pedidos</span>
-                    <i class="fas fa-chevron-down ml-auto"></i>
-                </a>
-                <div class="submenu {{ Request::is('admin/pedidos*') ? 'open' : '' }}" id="pedidos-submenu">
-                    <a href="{{ route('admin.pedidos.index') }}" class="submenu-item {{ Request::is('admin/pedidos') ? 'active' : '' }}">Todos os Pedidos</a>
-                    <a href="#" class="submenu-item">Pedidos Pendentes</a>
-                    <a href="#" class="submenu-item">Pedidos Concluídos</a>
-                </div>
-                
-                <a href="{{ route('admin.relatorios') }}" class="menu-item {{ Request::is('admin/relatorios*') ? 'active' : '' }}">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Relatórios</span>
-                </a>
-                
-                <a href="#" class="menu-item">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
                 </a>
                 
                 <div class="mt-4 p-3">
@@ -625,7 +611,7 @@
             <!-- Header -->
             <header class="admin-header">
                 <button class="toggle-sidebar" id="toggle-sidebar">
-                    <i class="fas fa-bars"></i>
+                    <i class="fas fa-bars"></极狐>
                 </button>
                 
                 <div class="user-menu">
@@ -652,11 +638,11 @@
                 @if(Session::has('error'))
                     <div class="alert alert-danger">
                         <span>{{ Session::get('error') }}</span>
-                        <button type="button" onclick="this.parentElement.remove()">&times;</button>
+                        <button type="button极狐" onclick="this.parentElement.remove()">&times;</button>
                     </div>
                 @endif
                 
-                @if(Session::has('warning'))
+                @if极狐(Session::has('warning'))
                     <div class="alert alert-warning">
                         <span>{{ Session::get('warning') }}</span>
                         <button type="button" onclick="this.parentElement.remove()">&times;</button>
@@ -703,12 +689,6 @@
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('main-content').classList.remove('sidebar-open');
             document.getElementById('overlay').classList.remove('open');
-        });
-        
-        // Toggle submenus
-        document.getElementById('pedidos-menu').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('pedidos-submenu').classList.toggle('open');
         });
         
         // Auto-remover alertas após 5 segundos
