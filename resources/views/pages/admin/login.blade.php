@@ -154,12 +154,19 @@
             border-radius: var(--border-radius);
             margin-top: 1.5rem;
             animation: slideIn 0.5s ease;
+            display: none;
         }
 
         .alert-danger {
             background-color: rgba(239, 71, 111, 0.1);
             border: 1px solid rgba(239, 71, 111, 0.2);
             color: var(--danger-color);
+        }
+
+        .alert-success {
+            background-color: rgba(6, 214, 160, 0.1);
+            border: 1px solid rgba(6, 214, 160, 0.2);
+            color: var(--success-color);
         }
 
         .alert ul {
@@ -173,6 +180,22 @@
 
         .alert li:last-child {
             margin-bottom: 0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .loading-spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
         }
 
         /* Decoração adicional */
@@ -217,6 +240,11 @@
                 opacity: 1;
                 transform: translateX(0);
             }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Responsividade */
@@ -267,54 +295,184 @@
                 <p>Entre com suas credenciais para continuar</p>
             </div>
             <div class="card-body">
-                <form>
+                <!-- Alertas de mensagem -->
+                <div class="alert alert-danger" id="errorAlert">
+                    <ul id="errorList"></ul>
+                </div>
+                
+                <div class="alert alert-success" id="successAlert">
+                    <span id="successMessage"></span>
+                </div>
+                
+                <!-- Formulário de login -->
+                <form id="loginForm" method="POST" action="{{ route('admin.login.post') }}">
+                    @csrf
+                    
                     <div class="form-group">
                         <label for="email" class="form-label">E-mail</label>
                         <div class="input-group">
-                            <input type="email" id="email" class="form-control" placeholder="admin@empresa.com" value="">
+                            <input type="email" id="email" name="email" class="form-control" placeholder="admin@email.com" required>
                             <i class="fas fa-envelope input-icon"></i>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="senha" class="form-label">Senha</label>
+                        <label for="password" class="form-label">Senha</label>
                         <div class="input-group">
-                            <input type="password" id="senha" class="form-control" placeholder="admin123" value="">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Sua senha" required>
                             <i class="fas fa-lock input-icon"></i>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-login">
+                    <button type="submit" class="btn-login" id="loginButton">
                         <i class="fas fa-sign-in-alt"></i> Entrar
                     </button>
                 </form>
 
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        <li>O campo e-mail é obrigatório</li>
-                        <li>A senha deve ter pelo menos 6 caracteres</li>
-                    </ul>
+                <!-- Loading indicator -->
+                <div class="loading" id="loadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <p class="mt-2">Processando login...</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Adicionando interatividade aos inputs
-        document.querySelectorAll('.form-control').forEach(input => {
-            // Adicionar classe quando o input estiver preenchido
-            input.addEventListener('blur', function() {
-                if (this.value) {
-                    this.classList.add('has-value');
-                } else {
-                    this.classList.remove('has-value');
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorList = document.getElementById('errorList');
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loginButton = document.getElementById('loginButton');
+
+            // Verificar se há mensagens de sucesso/erro da sessão
+            @if(Session::has('success'))
+                showSuccess('{{ Session::get("success") }}');
+            @endif
+
+            @if(Session::has('error'))
+                showError(['{{ Session::get("error") }}']);
+            @endif
+
+            // Adicionar interatividade aos inputs
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value) {
+                        this.classList.add('has-value');
+                    } else {
+                        this.classList.remove('has-value');
+                    }
+                });
+                
+                input.addEventListener('focus', function() {
+                    this.parentElement.querySelector('.input-icon').style.animation = 'bounce 0.5s ease';
+                });
+            });
+
+            // Manipular envio do formulário
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validar campos
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const errors = [];
+                
+                if (!email) {
+                    errors.push('O campo e-mail é obrigatório');
+                } else if (!isValidEmail(email)) {
+                    errors.push('Por favor, insira um e-mail válido');
                 }
+                
+                if (!password) {
+                    errors.push('O campo senha é obrigatório');
+                } else if (password.length < 6) {
+                    errors.push('A senha deve ter pelo menos 6 caracteres');
+                }
+                
+                if (errors.length > 0) {
+                    showError(errors);
+                    return;
+                }
+                
+                // Mostrar loading e desabilitar botão
+                showLoading();
+                
+                // Enviar formulário via AJAX
+                fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess(data.message || 'Login realizado com sucesso!');
+                        // Redirecionar após sucesso
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '{{ route("admin.dashboard") }}';
+                        }, 1500);
+                    } else {
+                        hideLoading();
+                        showError([data.message] || ['Erro ao realizar login']);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Error:', error);
+                    // Se falhar o AJAX, submeter o formulário normalmente
+                    loginForm.submit();
+                });
             });
-            
-            // Animar ícone ao focar no input
-            input.addEventListener('focus', function() {
-                this.parentElement.querySelector('.input-icon').style.animation = 'bounce 0.5s ease';
-            });
+
+            function showError(errors) {
+                errorList.innerHTML = '';
+                errors.forEach(error => {
+                    const li = document.createElement('li');
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                });
+                errorAlert.style.display = 'block';
+                successAlert.style.display = 'none';
+                
+                // Scroll para o alerta
+                errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successAlert.style.display = 'block';
+                errorAlert.style.display = 'none';
+            }
+
+            function showLoading() {
+                loadingIndicator.style.display = 'block';
+                loginButton.disabled = true;
+                loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            }
+
+            function hideLoading() {
+                loadingIndicator.style.display = 'none';
+                loginButton.disabled = false;
+                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+            }
+
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            // Preencher automaticamente para teste (remover em produção)
+            @if(app()->environment('local'))
+            document.getElementById('email').value = 'admin@email.com';
+            document.getElementById('password').value = 'admin123';
+            @endif
         });
     </script>
 </body>

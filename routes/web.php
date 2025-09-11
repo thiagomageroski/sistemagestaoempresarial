@@ -9,8 +9,10 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\CarrinhoController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Middleware\CustomAuth;
 use App\Http\Middleware\VerificarCarrinho;
+use App\Http\Middleware\AdminAuth;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,8 +36,15 @@ Route::middleware([\App\Http\Middleware\CheckAuth::class . ':guest'])->group(fun
 
 // Rotas de autenticação (POST) - acessíveis a todos
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/cadastro', [AuthController::class, 'register'])->name('register');
+
+// Rota de logout (acessível para todos os usuários autenticados)
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ROTAS PÚBLICAS DO ADMIN (LOGIN)
+// Estas rotas devem ficar FORA de qualquer middleware de autenticação
+Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login.post');
 
 // Rotas de produtos (públicas)
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
@@ -77,7 +86,7 @@ Route::middleware([CustomAuth::class, VerificarCarrinho::class])->group(function
     });
 });
 
-// Rotas para Minhas Compras (protegidas - requerem autenticação) - ALTERADO para /minhascompras
+// Rotas para Minhas Compras (protegidas - requerem autenticação)
 Route::middleware([CustomAuth::class])->group(function () {
     Route::get('/minhascompras', [CheckoutController::class, 'meusPedidos'])->name('minhas.compras');
     Route::get('/minhascompras/{id}', [CheckoutController::class, 'detalhesPedido'])->name('detalhes.compra');
@@ -90,7 +99,7 @@ Route::middleware([CustomAuth::class, \App\Http\Middleware\VerificarPedidoFinali
         $user = Session::get('user');
         $pedidos = Session::get('pedidos', []);
         $ultimoPedido = end($pedidos);
-        
+
         return view('pages.produtos.sucesso', compact('user', 'ultimoPedido'));
     })->name('sucesso');
 });
@@ -99,19 +108,34 @@ Route::middleware([CustomAuth::class, \App\Http\Middleware\VerificarPedidoFinali
 Route::get('/admin/users', [AuthController::class, 'viewUsers'])->name('admin.users');
 Route::get('/admin/clear-users', [AuthController::class, 'clearUsers'])->name('admin.clear.users');
 
+
 /*
 |--------------------------------------------------------------------------
-| Área Administrativa (Protegida por middleware custom.auth)
+| Área Administrativa (Protegida por middleware admin)
+| Todas as rotas aqui requerem que o usuário seja administrador
 |--------------------------------------------------------------------------
 */
-Route::middleware([CustomAuth::class])->prefix('admin')->group(function () {
+Route::middleware([AdminAuth::class])->prefix('admin')->group(function () {
+    // Dashboard e páginas principais
     Route::get('/', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/show/{id}', [AdminController::class, 'show'])->name('admin.show');
+    
+    // Logout do admin (deve estar dentro do middleware para acessar a sessão)
+    Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+    
+    // API routes para dados do dashboard
+    Route::get('/api/metricas', [AdminController::class, 'metricas'])->name('admin.api.metricas');
+    Route::get('/api/vendas-recentes', [AdminController::class, 'vendasRecentes'])->name('admin.api.vendas.recentes');
 
     // Rotas de clientes
     Route::get('/clientes', [ClienteController::class, 'index'])->name('admin.clientes.index');
     Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('admin.clientes.show');
+    Route::get('/clientes/criar', [ClienteController::class, 'create'])->name('admin.clientes.create');
+    Route::post('/clientes', [ClienteController::class, 'store'])->name('admin.clientes.store');
+    Route::get('/clientes/{id}/editar', [ClienteController::class, 'edit'])->name('admin.clientes.edit');
+    Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('admin.clientes.update');
+    Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('admin.clientes.destroy');
 
     // Rotas de produtos administrativas
     Route::get('/produtos', [ProdutoController::class, 'adminIndex'])->name('admin.produtos.index');
@@ -120,16 +144,25 @@ Route::middleware([CustomAuth::class])->prefix('admin')->group(function () {
     Route::get('/produtos/{id}/editar', [ProdutoController::class, 'edit'])->name('admin.produtos.edit');
     Route::put('/produtos/{id}', [ProdutoController::class, 'update'])->name('admin.produtos.update');
     Route::delete('/produtos/{id}', [ProdutoController::class, 'destroy'])->name('admin.produtos.destroy');
+    
+    // Rotas de pedidos
+    Route::get('/pedidos', [AdminController::class, 'pedidos'])->name('admin.pedidos.index');
+    Route::get('/pedidos/{id}', [AdminController::class, 'pedidoShow'])->name('admin.pedidos.show');
+    Route::put('/pedidos/{id}/status', [AdminController::class, 'atualizarStatusPedido'])->name('admin.pedidos.status');
+    
+    // Rotas de relatórios
+    Route::get('/relatorios', [AdminController::class, 'relatorios'])->name('admin.relatorios');
+    Route::get('/relatorios/vendas', [AdminController::class, 'relatorioVendas'])->name('admin.relatorios.vendas');
+    Route::get('/relatorios/produtos', [AdminController::class, 'relatorioProdutos'])->name('admin.relatorios.produtos');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Rotas de API para dados simulados
-|--------------------------------------------------------------------------
-*/
-Route::get('/api/metricas', [AdminController::class, 'metricas'])->name('api.metricas');
-Route::get('/api/vendas-recentes', [AdminController::class, 'vendasRecentes'])->name('api.vendas.recentes');
-Route::get('/api/produtos-populares', [ProdutoController::class, 'populares'])->name('api.produtos.populares');
+// ROTAS DO PERFIL - CORRIGIDAS (agora agrupadas corretamente)
+Route::middleware([CustomAuth::class])->group(function () {
+    Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
+    Route::post('/perfil/update', [PerfilController::class, 'update'])->name('perfil.update');
+    Route::post('/perfil/update-password', [PerfilController::class, 'updatePassword'])->name('perfil.update-password');
+    Route::post('/perfil/upload-avatar', [PerfilController::class, 'uploadAvatar'])->name('perfil.upload-avatar');
+});
 
 // Rota para alternar o tema
 Route::post('/toggle-theme', function () {

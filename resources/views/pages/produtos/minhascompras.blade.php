@@ -55,6 +55,7 @@
         .page-header {
             text-align: center;
             margin: 2rem 0 3rem;
+            padding: 0 1rem;
         }
 
         .page-title {
@@ -357,6 +358,7 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white !important;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            text-decoration: none;
         }
 
         .btn-primary:hover {
@@ -370,6 +372,7 @@
             color: var(--dark);
             border: 2px solid var(--light-gray);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
         }
 
         .btn-outline:hover {
@@ -685,7 +688,21 @@
                                 </div>
                             </div>
 
-                            
+                            <div class="order-actions">
+                                
+
+                                @if(($compra['status'] ?? '') === 'aguardando_pagamento')
+                                    <button class="btn btn-danger" onclick="cancelarPedido('{{ $compra['numero'] }}')">
+                                        <i class="fas fa-times"></i>
+                                        Cancelar Pedido
+                                    </button>
+                                @endif
+
+                                <a href="{{ route('produtos.index') }}" class="btn btn-outline">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Comprar Novamente
+                                </a>
+                            </div>
                         </div>
                     @endforeach
                 @else
@@ -744,23 +761,29 @@
                     },
                     body: JSON.stringify({ filtro: filtro })
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro na resposta do servidor');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             atualizarListaCompras(data.compras);
                         } else {
-                            mostrarToast('Erro ao filtrar compras.', 'error');
+
                             location.reload();
                         }
                     })
                     .catch(error => {
-                        mostrarToast('Erro ao filtrar compras.', 'error');
+                        console.error('Erro:', error);
+
                         location.reload();
                     });
             }
 
             function atualizarListaCompras(compras) {
-                if (compras.length === 0) {
+                if (!compras || compras.length === 0) {
                     ordersContainer.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-icon">
@@ -776,7 +799,11 @@
                 let html = '';
                 compras.forEach(compra => {
                     // Verificar se os itens existem e estão no formato correto
+                    // O backend pode retornar 'itens' ou 'items', então verificamos ambos
                     const itens = compra.itens || compra.items || [];
+                    
+                    // DEBUG: Log para verificar a estrutura completa da compra
+                    console.log('Estrutura completa da compra:', compra);
                     
                     html += `
                         <div class="order-card">
@@ -834,27 +861,28 @@
                                     Produtos Comprados
                                 </h4>
                                 <div class="product-list">
-                                    ${itens.length > 0 ?
-                            itens.map(item => `
-                                            <div class="product-item">
-                                                <div class="product-image">
-                                                    <img src="${item.imagem || 'https://via.placeholder.com/60'}" alt="${item.nome || 'Produto'}">
-                                                </div>
-                                                <div class="product-info">
-                                                    <div class="product-name">${item.nome || 'Produto não encontrado'}</div>
-                                                    <div class="product-details">
-                                                        <span class="product-price">R$ ${formatCurrency(item.preco || 0)}</span>
-                                                        <span class="product-quantity">Qtd: ${item.quantidade || 1}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        `).join('') :
-                            '<p style="color: var(--dark-gray); text-align: center; padding: 1rem;">Nenhum produto encontrado</p>'
-                        }
+                                    ${renderProductList(itens)}
                                 </div>
                             </div>
 
-                            
+                            <div class="order-actions">
+                                <a href="/minhascompras/${compra.numero}" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                    Ver Detalhes
+                                </a>
+                                
+                                ${compra.status === 'aguardando_pagamento' ? `
+                                <button class="btn btn-danger" onclick="cancelarPedido('${compra.numero}')">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar Pedido
+                                </button>
+                                ` : ''}
+                                
+                                <a href="{{ route('produtos.index') }}" class="btn btn-outline">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Comprar Novamente
+                                </a>
+                            </div>
                         </div>
                     `;
                 });
@@ -862,7 +890,57 @@
                 ordersContainer.innerHTML = html;
             }
 
+            function renderProductList(itens) {
+                if (!itens || itens.length === 0) {
+                    return '<p style="color: var(--dark-gray); text-align: center; padding: 1rem;">Nenhum produto encontrado</p>';
+                }
+
+                let productHtml = '';
+                
+                itens.forEach(item => {
+                    // DEBUG: Log para verificar a estrutura do item
+                    console.log('Estrutura do item:', item);
+                    
+                    // Verificar se o item é um objeto válido
+                    if (typeof item !== 'object' || item === null) {
+                        console.warn('Item inválido:', item);
+                        return;
+                    }
+                    
+                    // Extrair propriedades do item com fallbacks
+                    const nome = item.nome || item.name || item.product_name || item.produto_nome || 
+                                item.title || item.titulo || 'Produto não especificado';
+                    
+                    const preco = item.preco || item.price || item.valor || item.product_price || 
+                                item.produto_preco || item.value || 0;
+                    
+                    const quantidade = item.quantidade || item.quantity || item.qtd || item.product_quantity || 
+                                    item.produto_quantidade || item.amount || 1;
+                    
+                    const imagem = item.imagem || item.image || item.img || item.product_image || 
+                                item.produto_imagem || item.picture || item.foto || 'https://via.placeholder.com/60';
+                    
+                    productHtml += `
+                        <div class="product-item">
+                            <div class="product-image">
+                                <img src="${imagem}" alt="${nome}" onerror="this.src='https://via.placeholder.com/60'">
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name">${nome}</div>
+                                <div class="product-details">
+                                    <span class="product-price">R$ ${formatCurrency(preco)}</span>
+                                    <span class="product-quantity">Qtd: ${quantidade}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                return productHtml;
+            }
+
             function getStatusClass(status) {
+                if (!status) return 'status-pendente';
                 switch (status) {
                     case 'confirmado': return 'status-confirmado';
                     case 'aguardando_pagamento': return 'status-aguardando';
@@ -872,6 +950,7 @@
             }
 
             function getStatusIcon(status) {
+                if (!status) return 'fa-clock';
                 switch (status) {
                     case 'confirmado': return 'fa-check-circle';
                     case 'aguardando_pagamento': return 'fa-clock';
@@ -881,6 +960,7 @@
             }
 
             function getStatusText(status) {
+                if (!status) return 'Pendente';
                 switch (status) {
                     case 'confirmado': return 'Confirmado';
                     case 'aguardando_pagamento': return 'Aguardando Pagamento';
@@ -890,6 +970,7 @@
             }
 
             function getPaymentIcon(method) {
+                if (!method) return 'fa-money-bill';
                 switch (method) {
                     case 'cartao': return 'fa-credit-card';
                     case 'pix': return 'fa-qrcode';
@@ -904,7 +985,8 @@
             }
 
             function formatCurrency(value) {
-                return parseFloat(value).toFixed(2).replace('.', ',');
+                const num = parseFloat(value) || 0;
+                return num.toFixed(2).replace('.', ',');
             }
         });
 

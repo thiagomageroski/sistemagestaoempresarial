@@ -49,5 +49,6 @@ class Kernel extends HttpKernel
         'custom.auth' => \App\Http\Middleware\CustomAuth::class,
         'verificar.carrinho' => \App\Http\Middleware\VerificarCarrinho::class,
         'verificar.pedido.finalizado' => \App\Http\Middleware\VerificarPedidoFinalizado::class,
+        'admin.auth' => \App\Http\Middleware\AdminAuth::class,
     ];
 }

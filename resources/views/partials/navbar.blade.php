@@ -525,7 +525,7 @@
                                 <div class="profile-name">{{ $user['name'] ?? '' }}</div>
                                 <div class="profile-email">{{ $user['email'] ?? '' }}</div>
                             </div>
-                            <a href="#" class="profile-item">
+                            <a href="/perfil" class="profile-item">
                                 <i class="fas fa-user-circle"></i>
                                 Meu Perfil
                             </a>

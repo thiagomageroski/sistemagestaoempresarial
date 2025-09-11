@@ -18,25 +18,29 @@ class AuthController extends Controller
                 $content = Storage::get($this->usersFile);
                 $users = json_decode($content, true);
                 
-                if (json_last_error() === JSON_ERROR_NONE) {
+                if (json_last_error() === JSON_ERROR_NONE && is_array($users)) {
                     return $users;
                 }
             }
         } catch (\Exception $e) {
-            // Se h erro, retorna array vazio
+            // Se houver erro, retorna array vazio
         }
         
-        // Usuários padrão se o arquivo não existir ou estiver corrompido
-        return [
-            [
-                'id' => 1,
-                'name' => 'Administrador',
-                'email' => 'admin@email.com',
-                'password' => 'password',
-                'role' => 'admin',
-                'created_at' => '2024-01-01 00:00:00'
-            ]
+        // USUÁRIO ADMIN JÁ CRIADO - PRONTO PARA USO
+        // AGORA COM A SENHA CORRETA: admin123
+        $adminUser = [
+            'id' => 1,
+            'name' => 'Administrador',
+            'email' => 'admin@email.com',
+            'password' => 'admin123', // SENHA CORRIGIDA
+            'role' => 'admin',
+            'created_at' => now()->toDateTimeString()
         ];
+        
+        // Salvar o admin no arquivo
+        $this->saveUsers([$adminUser]);
+        
+        return [$adminUser];
     }
     
     private function saveUsers($users)
@@ -53,7 +57,9 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         if (Session::get('user')) {
-            return redirect()->route('home');
+            // Se já estiver logado, redirecionar conforme o tipo de usuário
+            $user = Session::get('user');
+            return redirect()->intended($user['role'] === 'admin' ? route('admin.dashboard') : route('home'));
         }
         
         return view('pages.login');
@@ -70,6 +76,10 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         $users = $this->getUsers();
 
+        // DEBUG: Verificar quais usuários estão sendo retornados
+        // \Log::info('Usuários no sistema:', $users);
+        // \Log::info('Tentativa de login:', $credentials);
+
         // Buscar usuário pelo email
         $user = collect($users)->firstWhere('email', $credentials['email']);
 
@@ -80,15 +90,22 @@ class AuthController extends Controller
             Session::put('auth', true);
             Session::put('last_login', now()->toDateTimeString());
 
-            return redirect()->intended($user['role'] === 'admin' ? route('admin.dashboard') : route('home'))
+            // Redirecionar conforme o tipo de usuário
+            if ($user['role'] === 'admin') {
+                return redirect()->intended(route('admin.dashboard'))
+                    ->with('success', 'Login administrativo realizado com sucesso!');
+            }
+
+            return redirect()->intended(route('home'))
                 ->with('success', 'Login realizado com sucesso!');
         }
 
         return back()->withErrors([
-            'email' => 'Credenciais inválidas',
+            'email' => 'Credenciais inválidas. Verifique seu email e senha.',
         ])->withInput($request->only('email'));
     }
 
+    // ... o restante do código permanece igual
     // Processar cadastro
     public function register(Request $request)
     {
@@ -140,9 +157,14 @@ class AuthController extends Controller
     // Logout
     public function logout(Request $request)
     {
-        Session::forget('user');
-        Session::forget('auth');
-        Session::forget('last_login');
+        $user = Session::get('user');
+        Session::flush(); // Limpa toda a sessão
+
+        // Redirecionar conforme o tipo de usuário que estava logado
+        if ($user && $user['role'] === 'admin') {
+            return redirect()->route('admin.login')
+                ->with('success', 'Logout realizado com sucesso!');
+        }
 
         return redirect()->route('home')
             ->with('success', 'Logout realizado com sucesso!');
@@ -151,11 +173,19 @@ class AuthController extends Controller
     // Visualizar usuários (apenas para desenvolvimento)
     public function viewUsers()
     {
+        // Verificar se é administrador
+        $user = Session::get('user');
+        if (!$user || $user['role'] !== 'admin') {
+            return response()->json([
+                'error' => 'Acesso não autorizado. Apenas administradores podem visualizar usuários.'
+            ], 403);
+        }
+        
         $users = $this->getUsers();
         
         return response()->json([
             'users' => $users,
-            'current_user' => Session::get('user'),
+            'current_user' => $user,
             'session_data' => session()->all(),
             'storage_path' => storage_path('app/' . $this->usersFile),
             'file_exists' => Storage::exists($this->usersFile)
@@ -165,6 +195,13 @@ class AuthController extends Controller
     // Limpar usuários (apenas para desenvolvimento)
     public function clearUsers()
     {
+        // Verificar se é administrador
+        $user = Session::get('user');
+        if (!$user || $user['role'] !== 'admin') {
+            return redirect()->route('home')
+                ->with('error', 'Acesso não autorizado. Apenas administradores podem executar esta ação.');
+        }
+        
         if (Storage::exists($this->usersFile)) {
             Storage::delete($this->usersFile);
         }
@@ -173,5 +210,98 @@ class AuthController extends Controller
         
         return redirect()->route('home')
             ->with('info', 'Sessão e usuários limpos com sucesso!');
+    }
+
+    // Método para criar usuário admin (apenas para desenvolvimento)
+    public function createAdminUser()
+    {
+        $users = $this->getUsers();
+        
+        // Verificar se já existe um admin
+        $adminExists = collect($users)->firstWhere('role', 'admin');
+        
+        if (!$adminExists) {
+            // Criar usuário admin padrão
+            $adminUser = [
+                'id' => count($users) + 1,
+                'name' => 'Administrador',
+                'email' => 'admin@email.com',
+                'password' => 'admin123',
+                'role' => 'admin',
+                'created_at' => now()->toDateTimeString()
+            ];
+            
+            $users[] = $adminUser;
+            $saved = $this->saveUsers($users);
+            
+            if ($saved) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Usuário admin criado com sucesso!',
+                    'admin' => [
+                        'email' => 'admin@email.com',
+                        'password' => 'admin123'
+                    ]
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao salvar usuário admin.'
+                ], 500);
+            }
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Usuário admin já existe'
+        ]);
+    }
+
+    // Método para forçar a criação do admin (útil se o arquivo foi corrompido)
+    public function forceCreateAdmin()
+    {
+        // Criar usuário admin padrão
+        $adminUser = [
+            'id' => 1,
+            'name' => 'Administrador',
+            'email' => 'admin@email.com',
+            'password' => 'admin123',
+            'role' => 'admin',
+            'created_at' => now()->toDateTimeString()
+        ];
+        
+        $saved = $this->saveUsers([$adminUser]);
+        
+        if ($saved) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário admin criado/recriado com sucesso!',
+                'admin' => [
+                    'email' => 'admin@email.com',
+                    'password' => 'admin123'
+                ]
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao salvar usuário admin.'
+            ], 500);
+        }
+    }
+
+    // Método para DEBUG - Verificar o arquivo de usuários
+    public function debugUsers()
+    {
+        $path = storage_path('app/' . $this->usersFile);
+        $exists = file_exists($path);
+        $content = $exists ? file_get_contents($path) : 'Arquivo não existe';
+        
+        return response()->json([
+            'file_exists' => $exists,
+            'file_path' => $path,
+            'file_content' => $content,
+            'decoded_content' => $exists ? json_decode($content, true) : null,
+            'current_users' => $this->getUsers()
+        ]);
     }
 }
