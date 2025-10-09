@@ -953,6 +953,7 @@
     @include('partials.footer')
 
     <script>
+        // pegar elementos html pelo id VICACEP
         const zipcodeInput = document.getElementById('endereco-cep');
         const addressInput = document.getElementById('endereco-logradouro');
         const neighborhoodInput = document.getElementById('endereco-bairro');
@@ -962,74 +963,41 @@
 
         let cartoes = [];
 
+        // function busca cep
         function buscarCEP(cep) {
             cep = cep.replace(/\D/g, '');
-
             if (cep.length !== 8) {
-                mostrarToast('CEP deve conter 8 dígitos', 'error');
                 return;
             }
 
-            const cepInput = document.getElementById('endereco-cep');
-            cepInput.classList.add('opacity-50', 'cursor-not-allowed');
-
             fetch(`https://viacep.com.br/ws/${cep}/json/`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erro na requisição');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    cepInput.classList.remove('opacity-50', 'cursor-not-allowed');
-
                     if (!data.erro) {
-                        document.getElementById('endereco-logradouro').value = data.logradouro || '';
-                        document.getElementById('endereco-bairro').value = data.bairro || '';
-                        document.getElementById('endereco-cidade').value = data.localidade || '';
-                        document.getElementById('endereco-estado').value = data.uf || '';
-
-                        if (data.logradouro) {
-                            document.getElementById('endereco-numero').focus();
-                        }
-
-                        mostrarToast('Endereço preenchido automaticamente!', 'success');
-                    } else {
-                        mostrarToast('CEP não encontrado.', 'error');
+                        addressInput.value = data.logradouro || '';
+                        neighborhoodInput.value = data.bairro || '';
+                        cityInput.value = data.localidade || '';
+                        stateInput.value = data.uf || '';
+                    } else {  // verifica se o cep é valido e mostra mensagem
+                        mostrarToast('CEP não encontrado', 'error');
                     }
                 })
+                .catch(() => mostrarToast('Erro ao buscar CEP', 'error'));
         }
 
-        document.getElementById('endereco-cep').addEventListener('blur', function () {
-            const cep = this.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                buscarCEP(cep);
-            }
-        });
-
-        document.getElementById('endereco-cep').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                const cep = this.value.replace(/\D/g, '');
-                if (cep.length === 8) {
-                    buscarCEP(cep);
-                }
-                e.preventDefault();
-            }
-        });
-
-        document.getElementById('endereco-cep').addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 8) value = value.slice(0, 8);
-            value = value.replace(/(\d{5})(\d{3})/, '$1-$2');
+        // mascara do CEP
+        zipcodeInput.addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '').slice(0, 8);
+            if (value.length > 5) value = value.replace(/(\d{5})(\d{0,3})/, '$1-$2');
             e.target.value = value;
         });
 
+        // busca ao sair do campo cep
         zipcodeInput.addEventListener('blur', function () {
-            const cep = this.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                buscarCEP(cep);
-            }
+            buscarCEP(this.value);
         });
+
+        // FIM DO VIACEP
 
         document.addEventListener('DOMContentLoaded', function () {
             carregarEnderecos();

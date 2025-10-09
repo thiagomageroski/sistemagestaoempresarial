@@ -904,9 +904,17 @@
                                     value="{{ $user['name'] ?? '' }}" required>
                             </div>
                             <div class="form-group">
+                                <label for="zipcode">CEP</label>
+                                <input type="text" id="zipcode" class="form-control" placeholder="00000-000" required>
+                            </div>
+                            <div class="form-group">
                                 <label for="address">Endereço</label>
-                                <input type="text" id="address" class="form-control"
-                                    placeholder="Rua, número e complemento" required>
+                                <input type="text" id="address" class="form-control" placeholder="Rua, número e complemento"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="neighborhood">Bairro</label>
+                                <input type="text" id="neighborhood" class="form-control" placeholder="Seu bairro" required>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
@@ -948,14 +956,6 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group">
-                                    <label for="zipcode">CEP</label>
-                                    <input type="text" id="zipcode" class="form-control" placeholder="00000-000" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="neighborhood">Bairro</label>
-                                    <input type="text" id="neighborhood" class="form-control" placeholder="Seu bairro" required>
-                                </div>
                             </div>
                         </div>
 
@@ -986,11 +986,13 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="card-name">Nome no Cartão</label>
-                                        <input type="text" id="card-name" class="form-control" placeholder="Como no cartão" required>
+                                        <input type="text" id="card-name" class="form-control" placeholder="Como no cartão"
+                                            required>
                                     </div>
                                     <div class="form-group">
                                         <label for="card-expiry">Validade</label>
-                                        <input type="text" id="card-expiry" class="form-control" placeholder="MM/AA" required>
+                                        <input type="text" id="card-expiry" class="form-control" placeholder="MM/AA"
+                                            required>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -1039,7 +1041,8 @@
                                 <p>Para finalizar o pagamento via PIX, preencha os dados abaixo:</p>
                                 <div class="form-group mt-3">
                                     <label for="pix-cpf">CPF</label>
-                                    <input type="text" id="pix-cpf" class="form-control" placeholder="000.000.000-00" required>
+                                    <input type="text" id="pix-cpf" class="form-control" placeholder="000.000.000-00"
+                                        required>
                                 </div>
                                 <div class="form-group">
                                     <label for="pix-name">Nome Completo</label>
@@ -1135,7 +1138,7 @@
                                     <i class="fas fa-ticket-alt"></i>
                                     Cupom de Desconto
                                 </h2>
-                                
+
                                 <!-- Formulário para aplicar cupom - SEMPRE VISÍVEL -->
                                 <div class="cupom-section" id="cupomFormSection">
                                     <div class="cupom-form">
@@ -1150,23 +1153,23 @@
 
                                 <!-- Seção de cupom aplicado - APENAS QUANDO HÁ CUPOM -->
                                 @if($desconto > 0 && $cupomAplicado)
-                                <div class="cupom-applied" id="cupomAppliedSection">
-                                    <div class="cupom-info">
-                                        <div>
-                                            <span class="cupom-code" id="cupomCodigoAplicado">{{ $cupomAplicado }}</span>
-                                            <span style="color: var(--success); font-weight: 600;">
-                                                -R$ {{ number_format($desconto, 2, ',', '.') }}
-                                            </span>
+                                    <div class="cupom-applied" id="cupomAppliedSection">
+                                        <div class="cupom-info">
+                                            <div>
+                                                <span class="cupom-code" id="cupomCodigoAplicado">{{ $cupomAplicado }}</span>
+                                                <span style="color: var(--success); font-weight: 600;">
+                                                    -R$ {{ number_format($desconto, 2, ',', '.') }}
+                                                </span>
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-sm" id="removerCupomBtn">
+                                                <i class="fas fa-times"></i>
+                                                Remover
+                                            </button>
                                         </div>
-                                        <button type="button" class="btn btn-danger btn-sm" id="removerCupomBtn">
-                                            <i class="fas fa-times"></i>
-                                            Remover
-                                        </button>
+                                        <div style="font-size: 0.9rem; color: var(--dark-gray);">
+                                            Cupom aplicado com sucesso! Desconto já incluído no total.
+                                        </div>
                                     </div>
-                                    <div style="font-size: 0.9rem; color: var(--dark-gray);">
-                                        Cupom aplicado com sucesso! Desconto já incluído no total.
-                                    </div>
-                                </div>
                                 @endif
                             </div>
 
@@ -1225,69 +1228,47 @@
             const boletoInfo = document.getElementById('boletoInfo');
             const transferenciaInfo = document.getElementById('transferenciaInfo');
             const pixInfo = document.getElementById('pixInfo');
-            // viacep
+            // pegar elementos html pelo id VICACEP
             const zipcodeInput = document.getElementById('zipcode');
             const addressInput = document.getElementById('address');
             const neighborhoodInput = document.getElementById('neighborhood');
             const cityInput = document.getElementById('city');
             const stateInput = document.getElementById('state');
 
+            // funçao busca cep
             function buscarCEP(cep) {
                 cep = cep.replace(/\D/g, '');
-                
-                if (cep.length !== 8) {
-                    return;
-                }
 
+                if (cep.length !== 8) return;
+
+                // resposta ao json
                 fetch(`https://viacep.com.br/ws/${cep}/json/`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Erro na requisição');
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
-                        hideLoading();
-                        
                         if (!data.erro) {
                             addressInput.value = data.logradouro || '';
                             neighborhoodInput.value = data.bairro || '';
                             cityInput.value = data.localidade || '';
                             stateInput.value = data.uf || '';
-                            
-                            if (data.logradouro) {
-                                addressInput.focus();
-                            }
-                            
-                            mostrarToast('Endereço preenchido automaticamente!', 'success');
-                        } else {
-                            mostrarToast('CEP não encontrado.', 'error');
+                        } else {  // verifica se o cep é valido e mostra mensagem
+                            mostrarToast('CEP não encontrado', 'error');
                         }
                     })
-                    .catch(error => {
-                        hideLoading();
-                        console.error('Erro ao buscar CEP:', error);
-                        mostrarToast('Erro ao buscar CEP. Tente novamente.', 'error');
-                    });
             }
-
-            zipcodeInput.addEventListener('blur', function() {
-                const cep = this.value.replace(/\D/g, '');
-                if (cep.length === 8) {
-                    buscarCEP(cep);
-                }
+            // preencher automatico ao sair do campo CEP
+            zipcodeInput.addEventListener('blur', function () {
+                buscarCEP(this.value);
             });
 
-            // Altura fixa para a seção de pagamento
+            // FIM DO VIACEP
+
             function ajustarAlturaSecaoPagamento() {
                 const alturaInicial = paymentSection.offsetHeight;
                 paymentSection.style.minHeight = `${alturaInicial}px`;
             }
 
-            // Máscaras para os campos
             aplicarMascaras();
 
-            // Seleção de método de pagamento
             paymentMethods.forEach(method => {
                 method.addEventListener('click', () => {
                     paymentMethods.forEach(m => m.classList.remove('selected'));
@@ -1296,7 +1277,6 @@
                     const metodo = method.getAttribute('data-method');
                     metodoPagamentoInput.value = metodo;
 
-                    // Mostrar/ocultar formulários conforme o método selecionado
                     if (metodo === 'cartao') {
                         creditCardForm.style.display = 'block';
                         boletoInfo.style.display = 'none';
