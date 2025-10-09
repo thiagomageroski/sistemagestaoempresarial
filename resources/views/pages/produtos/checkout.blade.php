@@ -1222,11 +1222,61 @@
             const paymentSection = document.getElementById('payment-section');
             const cupomFormSection = document.getElementById('cupomFormSection');
             const cupomAppliedSection = document.getElementById('cupomAppliedSection');
-
-            // Elementos dos métodos de pagamento
             const boletoInfo = document.getElementById('boletoInfo');
             const transferenciaInfo = document.getElementById('transferenciaInfo');
             const pixInfo = document.getElementById('pixInfo');
+            // viacep
+            const zipcodeInput = document.getElementById('zipcode');
+            const addressInput = document.getElementById('address');
+            const neighborhoodInput = document.getElementById('neighborhood');
+            const cityInput = document.getElementById('city');
+            const stateInput = document.getElementById('state');
+
+            function buscarCEP(cep) {
+                cep = cep.replace(/\D/g, '');
+                
+                if (cep.length !== 8) {
+                    return;
+                }
+
+                fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro na requisição');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        hideLoading();
+                        
+                        if (!data.erro) {
+                            addressInput.value = data.logradouro || '';
+                            neighborhoodInput.value = data.bairro || '';
+                            cityInput.value = data.localidade || '';
+                            stateInput.value = data.uf || '';
+                            
+                            if (data.logradouro) {
+                                addressInput.focus();
+                            }
+                            
+                            mostrarToast('Endereço preenchido automaticamente!', 'success');
+                        } else {
+                            mostrarToast('CEP não encontrado.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        hideLoading();
+                        console.error('Erro ao buscar CEP:', error);
+                        mostrarToast('Erro ao buscar CEP. Tente novamente.', 'error');
+                    });
+            }
+
+            zipcodeInput.addEventListener('blur', function() {
+                const cep = this.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    buscarCEP(cep);
+                }
+            });
 
             // Altura fixa para a seção de pagamento
             function ajustarAlturaSecaoPagamento() {
