@@ -6,15 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Cliente;
 
 class PerfilController extends Controller
 {
-    // Arquivo para persistência dos dados de perfil
     private $perfisFile = 'perfis.json';
     
-    /**
-     * Retorna os dados do perfil do usuário logado
-     */
     private function getPerfilUsuario()
     {
         $user = Session::get('user');
@@ -40,7 +37,7 @@ class PerfilController extends Controller
         return [
             'user_id' => $user['id'],
             'nome' => $user['name'] ?? '',
-            'sobrenome' => '',
+            'cpf' => '',
             'telefone' => '',
             'data_nascimento' => '',
             'avatar' => '',
@@ -183,7 +180,7 @@ class PerfilController extends Controller
         // Validação dos dados
         $validator = Validator::make($request->all(), [
             'nome' => 'required|string|max:255',
-            'sobrenome' => 'nullable|string|max:255',
+            'cpf' => 'nullable|string|max:11',
             'telefone' => 'nullable|string|max:20',
             'data_nascimento' => 'nullable|date',
             'avatar' => 'nullable|string',
@@ -199,11 +196,25 @@ class PerfilController extends Controller
                 ->with('error', 'Por favor, corrija os erros no formulário.');
         }
         
+        // NOVO: Atualizar CPF no banco de dados MySQL
+        try {
+            $cliente = Cliente::where('email', $user['email'])->first();
+            
+            if ($cliente) {
+                $cliente->update([
+                    'cpf' => $request->cpf
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Se der erro no banco, continua normalmente (só não atualiza no MySQL)
+            // Pode logar o erro se quiser: \Log::error('Erro ao atualizar CPF: ' . $e->getMessage());
+        }
+
         // Preparar dados do perfil
         $perfilData = [
             'user_id' => $user['id'],
             'nome' => $request->nome,
-            'sobrenome' => $request->sobrenome,
+            'cpf' => $request->cpf,
             'telefone' => $request->telefone,
             'data_nascimento' => $request->data_nascimento,
             'avatar' => $request->avatar,

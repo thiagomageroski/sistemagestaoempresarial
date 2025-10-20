@@ -101,7 +101,6 @@ class ProdutoController extends Controller
         ];
     }
 
-    // ... o resto do código permanece igual
     public function index()
     {
         $produtos = $this->produtos();

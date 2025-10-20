@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\Cliente;
 
 class CheckoutController extends Controller
 {
@@ -227,8 +228,22 @@ class CheckoutController extends Controller
         }
 
         try {
-            // DEBUG: Log para verificar se está chegando aqui
             Log::info('Iniciando processamento do pedido para: ' . $request->email);
+
+            try {
+                $cliente = Cliente::where('email', $user['email'])->first();
+
+                if ($cliente) {
+                    $cliente->update([
+                        'cep' => $request->cep,
+                        'logradouro' => $request->endereco,
+                        'bairro' => $request->bairro,
+                        'cidade' => $request->cidade,
+                        'uf' => $request->estado
+                    ]);
+                }
+            } catch (\Exception $e) {
+            }
 
             // Calcular totais
             $subtotal = 0;
@@ -540,13 +555,13 @@ class CheckoutController extends Controller
         }
 
         $frete = session()->get('frete', 15.90);
-        
+
         // Se for cupom de frete grátis, aplicar frete zero
         if (strtoupper($request->codigo_cupom) === 'FRETEGRATIS') {
             $frete = 0.00;
             session()->put('frete', $frete);
         }
-        
+
         $total = $subtotal + $frete - $desconto;
 
         return response()->json([
@@ -567,7 +582,7 @@ class CheckoutController extends Controller
     {
         // Verificar se existe cupom aplicado
         $cupomAplicado = session()->get('cupom_aplicado');
-        
+
         if (!$cupomAplicado) {
             return response()->json([
                 'success' => false,
@@ -805,8 +820,10 @@ class CheckoutController extends Controller
         $pedidosArquivo = $this->carregarPedidosArquivo();
 
         // Garantir que ambos sejam arrays
-        if (!is_array($pedidosSessao)) $pedidosSessao = [];
-        if (!is_array($pedidosArquivo)) $pedidosArquivo = [];
+        if (!is_array($pedidosSessao))
+            $pedidosSessao = [];
+        if (!is_array($pedidosArquivo))
+            $pedidosArquivo = [];
 
         $todosPedidos = array_merge($pedidosSessao, $pedidosArquivo);
 

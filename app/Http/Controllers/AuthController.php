@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Cliente; // ← ADICIONE ESTA LINHA
 
 class AuthController extends Controller
 {
@@ -105,8 +106,7 @@ class AuthController extends Controller
         ])->withInput($request->only('email'));
     }
 
-    // ... o restante do código permanece igual
-    // Processar cadastro
+    // Processar cadastro - MÉTODO ATUALIZADO
     public function register(Request $request)
     {
         $request->validate([
@@ -125,7 +125,15 @@ class AuthController extends Controller
             ])->withInput($request->only('name', 'email'));
         }
 
-        // Criar novo usuário
+        try {
+            Cliente::create([
+                'nome' => $request->name,
+                'email' => $request->email
+            ]);
+        } catch (\Exception $e) {
+        }
+
+        // Criar novo usuário (sistema atual)
         $newUser = [
             'id' => count($users) + 1,
             'name' => $request->name,

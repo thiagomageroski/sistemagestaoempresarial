@@ -496,11 +496,6 @@
                                 <i class="fas fa-bell nav-icon mr-4"></i>
                                 <span class="font-medium">Preferências</span>
                             </a>
-                            <a href="#enderecos" class="nav-tab flex items-center px-5 py-4 text-gray-700"
-                                data-target="enderecos">
-                                <i class="fas fa-map-marker-alt nav-icon mr-4"></i>
-                                <span class="font-medium">Endereços</span>
-                            </a>
                             <a href="#pagamentos" class="nav-tab flex items-center px-5 py-4 text-gray-700"
                                 data-target="pagamentos">
                                 <i class="fas fa-credit-card nav-icon mr-4"></i>
@@ -571,10 +566,12 @@
                                     <label for="nome">Nome</label>
                                 </div>
                                 <div class="floating-label">
-                                    <input type="text" name="sobrenome" value="{{ $perfil['sobrenome'] }}"
-                                        class="input-field w-full px-5 py-4" placeholder=" ">
-                                    <label for="sobrenome">Sobrenome</label>
+                                    <input type="text" name="cpf" value="{{ $perfil['cpf'] }}"
+                                        class="input-field w-full px-5 py-4" placeholder=" " maxlength="11"
+                                        pattern="\d{11}" oninput="this.value = this.value.replace(/\D/g, '')">
+                                    <label for="cpf">CPF</label>
                                 </div>
+
                             </div>
 
                             <div class="floating-label">
