@@ -1,9 +1,19 @@
-FUNÇÃO VIA CEP = https://www.youtube.com/watch?v=imk6Y0viabg&t=1869s
-Arquivos que integrei a API = perfil.blade.php, checkout.blade.php
+FUNÇÃO VIA CEP (perfil.blade.php, checkout.blade.php) = https://www.youtube.com/watch?v=imk6Y0viabg&t=1869s
 
-TABELA CLIENTES INTEGRAÇAO SQL = https://www.youtube.com/watch?v=zQdBSpTDQpQ, https://www.youtube.com/watch?v=WQsVIAfc1Uc, https://www.youtube.com/watch?v=QYT_Hy0Mx2Q e https://www.youtube.com/watch?v=gewDfn2E2mc
+TABELA CLIENTES INTEGRAÇAO SQL = https://www.youtube.com/watch?v=QYT_Hy0Mx2Q&t=316s, https://www.youtube.com/watch?v=JghBWzm5gRY
 
-Arquivos que integrei a API = AuthController.php, PerfilController.php, perfil.blade.php
+MODEL:
+
+protected $fillable = [
+        'nome',
+        'cpf', 
+        'email',
+        'cep',
+        'logradouro',
+        'bairro',
+        'cidade',
+        'uf'
+    ];
 
 NOME E EMAIL (AuthController.php):
 
