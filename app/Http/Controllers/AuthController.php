@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Cliente; // ← ADICIONE ESTA LINHA
+use App\Models\Cliente;
 
 class AuthController extends Controller
 {
-    // Arquivo para persistência
     private $usersFile = 'users.json';
 
     private function getUsers()

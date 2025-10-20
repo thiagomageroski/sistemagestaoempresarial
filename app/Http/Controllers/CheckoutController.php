@@ -11,9 +11,7 @@ use App\Models\Cliente;
 
 class CheckoutController extends Controller
 {
-    /**
-     * Exibe a página de checkout
-     */
+
     public function index()
     {
         // Verificar se o usuário está autenticado (usando SESSION)
