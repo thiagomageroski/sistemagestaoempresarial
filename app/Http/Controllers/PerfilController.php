@@ -11,7 +11,7 @@ use App\Models\Cliente;
 class PerfilController extends Controller
 {
     private $perfisFile = 'perfis.json';
-    
+
     private function getPerfilUsuario()
     {
         $user = Session::get('user');
@@ -23,16 +23,19 @@ class PerfilController extends Controller
             if (Storage::exists($this->perfisFile)) {
                 $content = Storage::get($this->perfisFile);
                 $perfis = json_decode($content, true);
-                
+
                 if (json_last_error() === JSON_ERROR_NONE && is_array($perfis)) {
                     // Buscar perfil pelo ID do usuário
-                    return collect($perfis)->firstWhere('user_id', $user['id']);
+                    $perfilEncontrado = collect($perfis)->firstWhere('user_id', $user['id']);
+                    if ($perfilEncontrado) {
+                        return $perfilEncontrado;
+                    }
                 }
             }
         } catch (\Exception $e) {
             // Log error if needed
         }
-        
+
         // Se não encontrar, retorna um perfil vazio
         return [
             'user_id' => $user['id'],
@@ -48,7 +51,7 @@ class PerfilController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Salva os dados do perfil
      */
@@ -56,16 +59,16 @@ class PerfilController extends Controller
     {
         try {
             $perfis = [];
-            
+
             if (Storage::exists($this->perfisFile)) {
                 $content = Storage::get($this->perfisFile);
                 $perfis = json_decode($content, true);
-                
+
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($perfis)) {
                     $perfis = [];
                 }
             }
-            
+
             // Encontrar índice do perfil existente
             $index = null;
             foreach ($perfis as $i => $perfil) {
@@ -74,22 +77,22 @@ class PerfilController extends Controller
                     break;
                 }
             }
-            
+
             // Atualizar ou adicionar perfil
             if ($index !== null) {
                 $perfis[$index] = $dadosPerfil;
             } else {
                 $perfis[] = $dadosPerfil;
             }
-            
+
             Storage::put($this->perfisFile, json_encode($perfis, JSON_PRETTY_PRINT));
             return true;
-            
+
         } catch (\Exception $e) {
             return false;
         }
     }
-    
+
     /**
      * Exibe a página de perfil do usuário
      */
@@ -99,25 +102,44 @@ class PerfilController extends Controller
             return redirect()->route('login')
                 ->with('warning', 'Faça login para acessar seu perfil.');
         }
-        
+
         $user = Session::get('user');
         $perfil = $this->getPerfilUsuario();
-        
+
+        // GARANTIR que o perfil nunca seja null
+        if (!$perfil) {
+            $perfil = [
+                'user_id' => $user['id'],
+                'nome' => $user['name'] ?? '',
+                'cpf' => '',
+                'telefone' => '',
+                'data_nascimento' => '',
+                'avatar' => '',
+                'preferencias' => [
+                    'email_promocional' => true,
+                    'notificacao_sms' => false,
+                    'notificacao_push' => true
+                ]
+            ];
+        }
+
         // Calcular número real de pedidos usando a mesma lógica do MinhasComprasController
         $todosPedidos = $this->carregarTodosPedidos();
         $totalPedidos = 0;
-        
+
         foreach ($todosPedidos as $pedido) {
-            if (is_array($pedido) && 
-                isset($pedido['cliente']['email']) && 
-                $pedido['cliente']['email'] === $user['email']) {
+            if (
+                is_array($pedido) &&
+                isset($pedido['cliente']['email']) &&
+                $pedido['cliente']['email'] === $user['email']
+            ) {
                 $totalPedidos++;
             }
         }
-        
+
         return view('pages.perfil', compact('user', 'perfil', 'totalPedidos'));
     }
-    
+
     /**
      * Carrega TODOS os pedidos de forma consistente (sessão + arquivo)
      */
@@ -125,15 +147,17 @@ class PerfilController extends Controller
     {
         $pedidosSessao = Session::get('pedidos', []);
         $pedidosArquivo = $this->carregarPedidosArquivo();
-        
+
         // Garantir que ambos sejam arrays
-        if (!is_array($pedidosSessao)) $pedidosSessao = [];
-        if (!is_array($pedidosArquivo)) $pedidosArquivo = [];
-        
+        if (!is_array($pedidosSessao))
+            $pedidosSessao = [];
+        if (!is_array($pedidosArquivo))
+            $pedidosArquivo = [];
+
         // Combinar pedidos, priorizando a sessão em caso de duplicatas
         return array_merge($pedidosArquivo, $pedidosSessao);
     }
-    
+
     /**
      * Carrega pedidos do arquivo JSON
      */
@@ -141,13 +165,13 @@ class PerfilController extends Controller
     {
         try {
             $pedidosFile = 'pedidos.json';
-            
+
             if (!Storage::exists($pedidosFile)) {
                 return [];
             }
 
             $content = Storage::get($pedidosFile);
-            
+
             if (empty(trim($content))) {
                 return [];
             }
@@ -164,7 +188,7 @@ class PerfilController extends Controller
             return [];
         }
     }
-    
+
     /**
      * Atualiza o perfil do usuário
      */
@@ -174,9 +198,9 @@ class PerfilController extends Controller
             return redirect()->route('login')
                 ->with('error', 'Sessão expirada. Faça login novamente.');
         }
-        
+
         $user = Session::get('user');
-        
+
         // Validação dos dados
         $validator = Validator::make($request->all(), [
             'nome' => 'required|string|max:255',
@@ -188,26 +212,20 @@ class PerfilController extends Controller
             'notificacao_sms' => 'nullable|boolean',
             'notificacao_push' => 'nullable|boolean'
         ]);
-        
+
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'Por favor, corrija os erros no formulário.');
         }
-        
-        // NOVO: Atualizar CPF no banco de dados MySQL
-        try {
-            $cliente = Cliente::where('email', $user['email'])->first();
-            
-            if ($cliente) {
-                $cliente->update([
-                    'cpf' => $request->cpf
-                ]);
-            }
-        } catch (\Exception $e) {
-            // Se der erro no banco, continua normalmente (só não atualiza no MySQL)
-            // Pode logar o erro se quiser: \Log::error('Erro ao atualizar CPF: ' . $e->getMessage());
+
+        $cliente = Cliente::where('email', $user['email'])->first();
+
+        if ($cliente) {
+            $cliente->update([
+                'cpf' => $request->cpf
+            ]);
         }
 
         // Preparar dados do perfil
@@ -225,25 +243,25 @@ class PerfilController extends Controller
             ],
             'atualizado_em' => now()->toDateTimeString()
         ];
-        
+
         // Salvar perfil
         $salvo = $this->salvarPerfil($perfilData);
-        
+
         if (!$salvo) {
             return redirect()->back()
                 ->with('error', 'Erro ao salvar perfil. Tente novamente.');
         }
-        
+
         // Atualizar também o nome do usuário na sessão se foi alterado
         if ($user['name'] !== $request->nome) {
             $user['name'] = $request->nome;
             Session::put('user', $user);
         }
-        
+
         return redirect()->route('perfil')
             ->with('success', 'Perfil atualizado com sucesso!');
     }
-    
+
     /**
      * Atualiza a senha do usuário
      */
@@ -253,51 +271,51 @@ class PerfilController extends Controller
             return redirect()->route('login')
                 ->with('error', 'Sessão expirada. Faça login novamente.');
         }
-        
+
         $user = Session::get('user');
-        
+
         // Validação
         $validator = Validator::make($request->all(), [
             'senha_atual' => 'required|string|min:6',
             'nova_senha' => 'required|string|min:6|confirmed'
         ]);
-        
+
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'Por favor, corrija os erros no formulário.');
         }
-        
+
         // Buscar usuário para verificar a senha atual
         $users = $this->getUsersFromAuth();
-        
+
         // Encontrar usuário
         $userData = collect($users)->firstWhere('id', $user['id']);
-        
+
         if (!$userData) {
             return redirect()->back()
                 ->with('error', 'Usuário não encontrado.');
         }
-        
+
         // Verificar senha atual (em texto plano conforme seu AuthController)
         if ($request->senha_atual !== $userData['password']) {
             return redirect()->back()
                 ->with('error', 'Senha atual incorreta.');
         }
-        
+
         // Atualizar senha no arquivo de usuários
         $updated = $this->atualizarSenhaUsuario($user['id'], $request->nova_senha);
-        
+
         if (!$updated) {
             return redirect()->back()
                 ->with('error', 'Erro ao atualizar senha. Tente novamente.');
         }
-        
+
         return redirect()->route('perfil')
             ->with('success', 'Senha atualizada com sucesso!');
     }
-    
+
     /**
      * Obtém usuários do AuthController (método similar)
      */
@@ -307,7 +325,7 @@ class PerfilController extends Controller
             if (Storage::exists('users.json')) {
                 $content = Storage::get('users.json');
                 $users = json_decode($content, true);
-                
+
                 if (json_last_error() === JSON_ERROR_NONE) {
                     return $users;
                 }
@@ -315,7 +333,7 @@ class PerfilController extends Controller
         } catch (\Exception $e) {
             // Se houver erro, retorna array vazio
         }
-        
+
         // Usuários padrão se o arquivo não existir ou estiver corrompido
         return [
             [
@@ -328,7 +346,7 @@ class PerfilController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Atualiza a senha do usuário no arquivo
      */
@@ -336,7 +354,7 @@ class PerfilController extends Controller
     {
         try {
             $users = $this->getUsersFromAuth();
-            
+
             // Encontrar e atualizar usuário
             foreach ($users as &$user) {
                 if ($user['id'] == $userId) {
@@ -344,16 +362,16 @@ class PerfilController extends Controller
                     break;
                 }
             }
-            
+
             // Salvar usuários atualizados
             Storage::put('users.json', json_encode($users, JSON_PRETTY_PRINT));
             return true;
-            
+
         } catch (\Exception $e) {
             return false;
         }
     }
-    
+
     /**
      * Faz upload de uma imagem de avatar (simulado)
      */
@@ -365,12 +383,12 @@ class PerfilController extends Controller
                 'message' => 'Não autenticado'
             ], 401);
         }
-        
+
         // Em um sistema real, aqui processaríamos o upload do arquivo
         // Por simplicidade, vamos retornar uma URL de avatar fake
-        
+
         $avatarUrl = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80";
-        
+
         return response()->json([
             'success' => true,
             'avatar_url' => $avatarUrl

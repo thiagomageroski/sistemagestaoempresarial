@@ -11,14 +11,14 @@ class AuthController extends Controller
 {
     // Arquivo para persistência
     private $usersFile = 'users.json';
-    
+
     private function getUsers()
     {
         try {
             if (Storage::exists($this->usersFile)) {
                 $content = Storage::get($this->usersFile);
                 $users = json_decode($content, true);
-                
+
                 if (json_last_error() === JSON_ERROR_NONE && is_array($users)) {
                     return $users;
                 }
@@ -26,7 +26,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             // Se houver erro, retorna array vazio
         }
-        
+
         // USUÁRIO ADMIN JÁ CRIADO - PRONTO PARA USO
         // AGORA COM A SENHA CORRETA: admin123
         $adminUser = [
@@ -37,13 +37,13 @@ class AuthController extends Controller
             'role' => 'admin',
             'created_at' => now()->toDateTimeString()
         ];
-        
+
         // Salvar o admin no arquivo
         $this->saveUsers([$adminUser]);
-        
+
         return [$adminUser];
     }
-    
+
     private function saveUsers($users)
     {
         try {
@@ -62,7 +62,7 @@ class AuthController extends Controller
             $user = Session::get('user');
             return redirect()->intended($user['role'] === 'admin' ? route('admin.dashboard') : route('home'));
         }
-        
+
         return view('pages.login');
     }
 
@@ -125,13 +125,10 @@ class AuthController extends Controller
             ])->withInput($request->only('name', 'email'));
         }
 
-        try {
-            Cliente::create([
-                'nome' => $request->name,
-                'email' => $request->email
-            ]);
-        } catch (\Exception $e) {
-        }
+        Cliente::create([
+            'nome' => $request->name,
+            'email' => $request->email
+        ]);
 
         // Criar novo usuário (sistema atual)
         $newUser = [
@@ -188,9 +185,9 @@ class AuthController extends Controller
                 'error' => 'Acesso não autorizado. Apenas administradores podem visualizar usuários.'
             ], 403);
         }
-        
+
         $users = $this->getUsers();
-        
+
         return response()->json([
             'users' => $users,
             'current_user' => $user,
@@ -209,13 +206,13 @@ class AuthController extends Controller
             return redirect()->route('home')
                 ->with('error', 'Acesso não autorizado. Apenas administradores podem executar esta ação.');
         }
-        
+
         if (Storage::exists($this->usersFile)) {
             Storage::delete($this->usersFile);
         }
-        
+
         Session::flush();
-        
+
         return redirect()->route('home')
             ->with('info', 'Sessão e usuários limpos com sucesso!');
     }
@@ -224,10 +221,10 @@ class AuthController extends Controller
     public function createAdminUser()
     {
         $users = $this->getUsers();
-        
+
         // Verificar se já existe um admin
         $adminExists = collect($users)->firstWhere('role', 'admin');
-        
+
         if (!$adminExists) {
             // Criar usuário admin padrão
             $adminUser = [
@@ -238,10 +235,10 @@ class AuthController extends Controller
                 'role' => 'admin',
                 'created_at' => now()->toDateTimeString()
             ];
-            
+
             $users[] = $adminUser;
             $saved = $this->saveUsers($users);
-            
+
             if ($saved) {
                 return response()->json([
                     'success' => true,
@@ -258,7 +255,7 @@ class AuthController extends Controller
                 ], 500);
             }
         }
-        
+
         return response()->json([
             'success' => false,
             'message' => 'Usuário admin já existe'
@@ -277,9 +274,9 @@ class AuthController extends Controller
             'role' => 'admin',
             'created_at' => now()->toDateTimeString()
         ];
-        
+
         $saved = $this->saveUsers([$adminUser]);
-        
+
         if ($saved) {
             return response()->json([
                 'success' => true,
@@ -303,7 +300,7 @@ class AuthController extends Controller
         $path = storage_path('app/' . $this->usersFile);
         $exists = file_exists($path);
         $content = $exists ? file_get_contents($path) : 'Arquivo não existe';
-        
+
         return response()->json([
             'file_exists' => $exists,
             'file_path' => $path,

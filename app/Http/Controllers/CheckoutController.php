@@ -230,19 +230,16 @@ class CheckoutController extends Controller
         try {
             Log::info('Iniciando processamento do pedido para: ' . $request->email);
 
-            try {
-                $cliente = Cliente::where('email', $user['email'])->first();
+            $cliente = Cliente::where('email', $user['email'])->first();
 
-                if ($cliente) {
-                    $cliente->update([
-                        'cep' => $request->cep,
-                        'logradouro' => $request->endereco,
-                        'bairro' => $request->bairro,
-                        'cidade' => $request->cidade,
-                        'uf' => $request->estado
-                    ]);
-                }
-            } catch (\Exception $e) {
+            if ($cliente) {
+                $cliente->update([
+                    'cep' => $request->cep,
+                    'logradouro' => $request->endereco,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                    'uf' => $request->estado
+                ]);
             }
 
             // Calcular totais
