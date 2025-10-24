@@ -182,7 +182,7 @@
                         <div class="space-y-6">
                             @foreach($pedido['itens'] as $item)
                             <div class="flex items-center p-4 bg-gray-50 rounded-xl">
-                                <img src="{{ $item['imagem'] }}" alt="{{ $item['nome'] }}" 
+                                <img src="{{ asset('storage/' . $item['imagem']) }}" alt="{{ $item['nome'] }}"> 
                                     class="w-20 h-20 object-cover rounded-lg product-image shadow-md">
                                 <div class="ml-6 flex-grow">
                                     <h4 class="font-semibold text-gray-800 text-lg">{{ $item['nome'] }}</h4>
