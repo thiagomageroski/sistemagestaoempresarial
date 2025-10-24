@@ -2,7 +2,7 @@ FUNÇÃO VIA CEP (perfil.blade.php, checkout.blade.php) = https://www.youtube.co
 
 TABELA CLIENTES INTEGRAÇAO SQL = https://www.youtube.com/watch?v=QYT_Hy0Mx2Q&t=316s, https://www.youtube.com/watch?v=JghBWzm5gRY
 
-MODEL:
+## MODEL:
 
 protected $fillable = [
         'nome',
@@ -15,14 +15,14 @@ protected $fillable = [
         'uf'
     ];
 
-NOME E EMAIL (AuthController.php):
+## NOME E EMAIL (AuthController.php):
 
 Cliente::create([
     'nome' => $request->name,
     'email' => $request->email
 ]);
 
-CPF (PerfilController.php):
+## CPF (PerfilController.php):
 
 $cliente = Cliente::where('email', $user['email'])->first();
 
@@ -32,7 +32,7 @@ if ($cliente) {
     ]);
 }
 
-CEP, Logradouro, Bairro, Cidade e Uf (CheckoutController.php):
+## CEP, Logradouro, Bairro, Cidade e Uf (CheckoutController.php):
 
 $cliente = Cliente::where('email', $user['email'])->first();
 
@@ -46,7 +46,7 @@ if ($cliente) {
     ]);
 }
 
-IMPLEMENTAÇÃO CRIAÇÃO DE PRODUTOS NO /ADMIN (AdminController.php, admin.blade.php, ProdutoController.php, CarrinhoController.php, CheckoutController.php, web.php) = https://www.youtube.com/watch?v=UF3bUQAIXu4, https://www.youtube.com/watch?v=ZQJdYM1m4q0, https://www.youtube.com/shorts/GdZsi9qqSME
+## IMPLEMENTAÇÃO CRIAÇÃO DE PRODUTOS NO /ADMIN (AdminController.php, admin.blade.php, ProdutoController.php, CarrinhoController.php, CheckoutController.php, web.php) = https://www.youtube.com/watch?v=UF3bUQAIXu4, https://www.youtube.com/watch?v=ZQJdYM1m4q0, https://www.youtube.com/shorts/GdZsi9qqSME
 
 FUNÇÕES PRINCIPAIS:
 
