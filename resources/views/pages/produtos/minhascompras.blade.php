@@ -542,7 +542,7 @@
             .filter-btn {
                 justify-content: center;
             }
-            
+
             .product-details {
                 flex-direction: column;
                 gap: 0.5rem;
@@ -603,15 +603,15 @@
                                     </div>
                                 </div>
                                 <span class="order-status 
-                                            @if(($compra['status'] ?? '') === 'confirmado') status-confirmado
-                                            @elseif(($compra['status'] ?? '') === 'aguardando_pagamento') status-aguardando
-                                            @elseif(($compra['status'] ?? '') === 'cancelado') status-cancelado
-                                            @else status-pendente @endif">
+                                                    @if(($compra['status'] ?? '') === 'confirmado') status-confirmado
+                                                    @elseif(($compra['status'] ?? '') === 'aguardando_pagamento') status-aguardando
+                                                    @elseif(($compra['status'] ?? '') === 'cancelado') status-cancelado
+                                                    @else status-pendente @endif">
                                     <i class="fas 
-                                                @if(($compra['status'] ?? '') === 'confirmado') fa-check-circle
-                                                @elseif(($compra['status'] ?? '') === 'aguardando_pagamento') fa-clock
-                                                @elseif(($compra['status'] ?? '') === 'cancelado') fa-times-circle
-                                                @else fa-clock @endif"></i>
+                                                        @if(($compra['status'] ?? '') === 'confirmado') fa-check-circle
+                                                        @elseif(($compra['status'] ?? '') === 'aguardando_pagamento') fa-clock
+                                                        @elseif(($compra['status'] ?? '') === 'cancelado') fa-times-circle
+                                                        @else fa-clock @endif"></i>
                                     @if(($compra['status'] ?? '') === 'confirmado') Confirmado
                                     @elseif(($compra['status'] ?? '') === 'aguardando_pagamento') Aguardando Pagamento
                                     @elseif(($compra['status'] ?? '') === 'cancelado') Cancelado
@@ -624,10 +624,10 @@
                                     <span class="detail-label">Método de Pagamento</span>
                                     <span class="detail-value">
                                         <i class="fas 
-                                                    @if(($compra['metodo_pagamento'] ?? '') === 'cartao') fa-credit-card
-                                                    @elseif(($compra['metodo_pagamento'] ?? '') === 'pix') fa-qrcode
-                                                    @elseif(($compra['metodo_pagamento'] ?? '') === 'boleto') fa-barcode
-                                                    @else fa-money-bill @endif"></i>
+                                                            @if(($compra['metodo_pagamento'] ?? '') === 'cartao') fa-credit-card
+                                                            @elseif(($compra['metodo_pagamento'] ?? '') === 'pix') fa-qrcode
+                                                            @elseif(($compra['metodo_pagamento'] ?? '') === 'boleto') fa-barcode
+                                                            @else fa-money-bill @endif"></i>
                                         {{ ucfirst($compra['metodo_pagamento'] ?? 'N/A') }}
                                     </span>
                                 </div>
@@ -669,7 +669,7 @@
                                         @foreach($compra['itens'] as $item)
                                             <div class="product-item">
                                                 <div class="product-image">
-                                                    <img src="{{ $item['imagem'] }}" alt="{{ $item['nome'] }}">
+                                                    <img src="{{ asset('storage/' . $item['imagem']) }}" alt="{{ $item['nome'] }}">
                                                 </div>
                                                 <div class="product-info">
                                                     <div class="product-name">{{ $item['nome'] }}</div>
@@ -689,10 +689,10 @@
                             </div>
 
                             <div class="order-actions">
-                                
+
 
                                 @if(($compra['status'] ?? '') === 'aguardando_pagamento')
-                                    
+
                                 @endif
 
                                 <a href="{{ route('produtos.index') }}" class="btn btn-outline">
@@ -799,10 +799,10 @@
                     // Verificar se os itens existem e estão no formato correto
                     // O backend pode retornar 'itens' ou 'items', então verificamos ambos
                     const itens = compra.itens || compra.items || [];
-                    
+
                     // DEBUG: Log para verificar a estrutura completa da compra
                     console.log('Estrutura completa da compra:', compra);
-                    
+
                     html += `
                         <div class="order-card">
                             <div class="order-header">
@@ -894,30 +894,30 @@
                 }
 
                 let productHtml = '';
-                
+
                 itens.forEach(item => {
                     // DEBUG: Log para verificar a estrutura do item
                     console.log('Estrutura do item:', item);
-                    
+
                     // Verificar se o item é um objeto válido
                     if (typeof item !== 'object' || item === null) {
                         console.warn('Item inválido:', item);
                         return;
                     }
-                    
+
                     // Extrair propriedades do item com fallbacks
-                    const nome = item.nome || item.name || item.product_name || item.produto_nome || 
-                                item.title || item.titulo || 'Produto não especificado';
-                    
-                    const preco = item.preco || item.price || item.valor || item.product_price || 
-                                item.produto_preco || item.value || 0;
-                    
-                    const quantidade = item.quantidade || item.quantity || item.qtd || item.product_quantity || 
-                                    item.produto_quantidade || item.amount || 1;
-                    
-                    const imagem = item.imagem || item.image || item.img || item.product_image || 
-                                item.produto_imagem || item.picture || item.foto || 'https://via.placeholder.com/60';
-                    
+                    const nome = item.nome || item.name || item.product_name || item.produto_nome ||
+                        item.title || item.titulo || 'Produto não especificado';
+
+                    const preco = item.preco || item.price || item.valor || item.product_price ||
+                        item.produto_preco || item.value || 0;
+
+                    const quantidade = item.quantidade || item.quantity || item.qtd || item.product_quantity ||
+                        item.produto_quantidade || item.amount || 1;
+
+                    const imagem = item.imagem || item.image || item.img || item.product_image ||
+                        item.produto_imagem || item.picture || item.foto || 'https://via.placeholder.com/60';
+
                     productHtml += `
                         <div class="product-item">
                             <div class="product-image">
@@ -1018,7 +1018,7 @@
         function mostrarToast(mensagem, tipo = 'success') {
             // Remover toasts existentes
             document.querySelectorAll('.toast').forEach(toast => toast.remove());
-            
+
             const toast = document.createElement('div');
             toast.className = `toast ${tipo}`;
             toast.innerHTML = `
@@ -1027,10 +1027,10 @@
             `;
 
             document.body.appendChild(toast);
-            
+
             // Trigger reflow para garantir que a animação funcione
             toast.offsetHeight;
-            
+
             setTimeout(() => toast.classList.add('show'), 100);
 
             setTimeout(() => {

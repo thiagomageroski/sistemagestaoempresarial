@@ -14,14 +14,14 @@ class ClienteController extends Controller
             return redirect()->route('admin.login')
                 ->with('warning', 'Faça login para acessar clientes.');
         }
-        
+
         // Verificar se o usuário é administrador
         $user = Session::get('user');
         if ($user['role'] !== 'admin') {
             return redirect()->route('home')
                 ->with('error', 'Acesso não autorizado. Apenas administradores podem acessar esta área.');
         }
-        
+
         return null;
     }
 
@@ -38,21 +38,21 @@ class ClienteController extends Controller
 
     public function index()
     {
-        if ($redirect = $this->requireAuth()) { 
-            return $redirect; 
+        if ($redirect = $this->requireAuth()) {
+            return $redirect;
         }
 
-        $clientes = $this->clientes();
-        return view('pages.admin.dashboard', compact('clientes'));
+        // Redireciona direto para a página de produtos
+        return redirect()->route('admin.produtos');
     }
 
     public function show($id)
     {
-        if ($redirect = $this->requireAuth()) { 
-            return $redirect; 
+        if ($redirect = $this->requireAuth()) {
+            return $redirect;
         }
 
-        $cliente = collect($this->clientes())->firstWhere('id', (int)$id);
+        $cliente = collect($this->clientes())->firstWhere('id', (int) $id);
 
         if (!$cliente) {
             return redirect()->route('admin.clientes.index')->with('error', 'Cliente não encontrado.');
@@ -80,8 +80,8 @@ class ClienteController extends Controller
 
     public function create()
     {
-        if ($redirect = $this->requireAuth()) { 
-            return $redirect; 
+        if ($redirect = $this->requireAuth()) {
+            return $redirect;
         }
 
         return view('pages.admin.clientes.create');
@@ -89,8 +89,8 @@ class ClienteController extends Controller
 
     public function store(Request $request)
     {
-        if ($redirect = $this->requireAuth()) { 
-            return $redirect; 
+        if ($redirect = $this->requireAuth()) {
+            return $redirect;
         }
 
         // Em um sistema real, aqui viria a validação e persistência dos dados
@@ -100,11 +100,11 @@ class ClienteController extends Controller
 
     public function edit($id)
     {
-        if ($redirect = $this->requireAuth()) { 
-            return $redirect; 
+        if ($redirect = $this->requireAuth()) {
+            return $redirect;
         }
 
-        $cliente = collect($this->clientes())->firstWhere('id', (int)$id);
+        $cliente = collect($this->clientes())->firstWhere('id', (int) $id);
 
         if (!$cliente) {
             return redirect()->route('admin.clientes.index')->with('error', 'Cliente não encontrado.');
@@ -115,8 +115,8 @@ class ClienteController extends Controller
 
     public function update(Request $request, $id)
     {
-        if ($redirect = $this->requireAuth()) { 
-            return $redirect; 
+        if ($redirect = $this->requireAuth()) {
+            return $redirect;
         }
 
         // Em um sistema real, aqui viria a validação e atualização dos dados
@@ -126,8 +126,8 @@ class ClienteController extends Controller
 
     public function destroy($id)
     {
-        if ($redirect = $this->requireAuth()) { 
-            return $redirect; 
+        if ($redirect = $this->requireAuth()) {
+            return $redirect;
         }
 
         // Em um sistema real, aqui viria a exclusão do cliente

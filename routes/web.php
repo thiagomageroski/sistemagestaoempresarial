@@ -48,13 +48,9 @@ Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.logi
 
 // Rotas de produtos (públicas)
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
+Route::get('/produtos/{id}', [ProdutoController::class, 'show'])->name('produtos.show');
 Route::get('/produtos/categoria/{categoria}', [ProdutoController::class, 'porCategoria'])->name('produtos.categoria');
 Route::get('/produtos/destaque', [ProdutoController::class, 'destaque'])->name('produtos.destaque');
-
-// Rota de detalhes do produto (PROTEGIDA - requer autenticação)
-Route::middleware([CustomAuth::class])->group(function () {
-    Route::get('/produtos/{slug}', [ProdutoController::class, 'show'])->name('produtos.show');
-});
 
 // Rotas do Carrinho (protegidas - requerem autenticação)
 Route::middleware([CustomAuth::class])->group(function () {
@@ -107,6 +103,7 @@ Route::middleware([CustomAuth::class, \App\Http\Middleware\VerificarPedidoFinali
 // Rotas para desenvolvimento (podem ser removidas em produção)
 Route::get('/admin/users', [AuthController::class, 'viewUsers'])->name('admin.users');
 Route::get('/admin/clear-users', [AuthController::class, 'clearUsers'])->name('admin.clear.users');
+Route::get('/admin/create-user', [AdminController::class, 'createAdminUser'])->name('admin.create.user');
 
 
 /*
@@ -116,47 +113,19 @@ Route::get('/admin/clear-users', [AuthController::class, 'clearUsers'])->name('a
 |--------------------------------------------------------------------------
 */
 Route::middleware([AdminAuth::class])->prefix('admin')->group(function () {
-    // Dashboard e páginas principais
+    // Página principal redireciona para produtos
     Route::get('/', [AdminController::class, 'index'])->name('admin.index');
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/show/{id}', [AdminController::class, 'show'])->name('admin.show');
-    
-    // Logout do admin (deve estar dentro do middleware para acessar a sessão)
+
+    // Logout do admin
     Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
-    
-    // API routes para dados do dashboard
-    Route::get('/api/metricas', [AdminController::class, 'metricas'])->name('admin.api.metricas');
-    Route::get('/api/vendas-recentes', [AdminController::class, 'vendasRecentes'])->name('admin.api.vendas.recentes');
 
-    // Rotas de clientes
-    Route::get('/clientes', [ClienteController::class, 'index'])->name('admin.clientes.index');
-    Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('admin.clientes.show');
-    Route::get('/clientes/criar', [ClienteController::class, 'create'])->name('admin.clientes.create');
-    Route::post('/clientes', [ClienteController::class, 'store'])->name('admin.clientes.store');
-    Route::get('/clientes/{id}/editar', [ClienteController::class, 'edit'])->name('admin.clientes.edit');
-    Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('admin.clientes.update');
-    Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('admin.clientes.destroy');
-
-    // Rotas de produtos administrativas
-    Route::get('/produtos', [ProdutoController::class, 'adminIndex'])->name('admin.produtos.index');
-    Route::get('/produtos/criar', [ProdutoController::class, 'create'])->name('admin.produtos.create');
-    Route::post('/produtos', [ProdutoController::class, 'store'])->name('admin.produtos.store');
-    Route::get('/produtos/{id}/editar', [ProdutoController::class, 'edit'])->name('admin.produtos.edit');
-    Route::put('/produtos/{id}', [ProdutoController::class, 'update'])->name('admin.produtos.update');
-    Route::delete('/produtos/{id}', [ProdutoController::class, 'destroy'])->name('admin.produtos.destroy');
-    
-    // Rotas de pedidos
-    Route::get('/pedidos', [AdminController::class, 'pedidos'])->name('admin.pedidos.index');
-    Route::get('/pedidos/{id}', [AdminController::class, 'pedidoShow'])->name('admin.pedidos.show');
-    Route::put('/pedidos/{id}/status', [AdminController::class, 'atualizarStatusPedido'])->name('admin.pedidos.status');
-    
-    // Rotas de relatórios
-    Route::get('/relatorios', [AdminController::class, 'relatorios'])->name('admin.relatorios');
-    Route::get('/relatorios/vendas', [AdminController::class, 'relatorioVendas'])->name('admin.relatorios.vendas');
-    Route::get('/relatorios/produtos', [AdminController::class, 'relatorioProdutos'])->name('admin.relatorios.produtos');
+    // Rotas de produtos administrativas (CORRIGIDAS)
+    Route::get('/produtos', [AdminController::class, 'produtos'])->name('admin.produtos');
+    Route::post('/salvar-produto', [AdminController::class, 'salvarProduto'])->name('admin.salvar-produto');
+    Route::delete('/excluir-produto/{id}', [AdminController::class, 'excluirProduto'])->name('admin.excluir-produto');
 });
 
-// ROTAS DO PERFIL - CORRIGIDAS (agora agrupadas corretamente)
+// ROTAS DO PERFIL
 Route::middleware([CustomAuth::class])->group(function () {
     Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
     Route::post('/perfil/update', [PerfilController::class, 'update'])->name('perfil.update');

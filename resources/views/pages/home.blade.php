@@ -612,32 +612,24 @@
             </div>
         </div>
 
-        <!-- Products Showcase -->
         <div class="products-showcase">
             <h2 class="showcase-title">Destaques da Loja</h2>
             <p>Confira nossos produtos mais populares</p>
 
             <div class="product-grid">
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                        alt="Notebook Pro 15" class="product-image">
-                    <h4 class="product-name">Notebook Pro 15</h4>
-                    <div class="product-price">R$ 4.299,90</div>
-                </div>
+                @php
+                    $produtosDestaqueIds = [6, 7, 9];
+                    $produtosDestaque = \App\Models\Produto::whereIn('id', $produtosDestaqueIds)->get();
+                @endphp
 
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                        alt="Headphone Bluetooth" class="product-image">
-                    <h4 class="product-name">Headphone Bluetooth</h4>
-                    <div class="product-price">R$ 599,90</div>
-                </div>
-
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="Smartwatch" class="product-image">
-                    <h4 class="product-name">Smartwatch Inteligente</h4>
-                    <div class="product-price">R$ 399,90</div>
-                </div>
+                @foreach($produtosDestaque as $produto)
+                    <div class="product-card">
+                        <img src="{{ asset('storage/' . $produto->imagem) }}" alt="{{ $produto->nome }}"
+                            class="product-image">
+                        <h4 class="product-name">{{ $produto->nome }}</h4>
+                        <div class="product-price">R$ {{ number_format($produto->preco, 2, ',', '.') }}</div>
+                    </div>
+                @endforeach
             </div>
         </div>
 

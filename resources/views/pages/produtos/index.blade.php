@@ -126,14 +126,12 @@
             font-size: 0.9rem;
         }
 
-        /* Conteúdo Principal */
         .container {
             max-width: 1200px;
             padding: 2rem 1.5rem;
             flex: 1;
         }
 
-        /* Header da página */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -165,7 +163,6 @@
             border-radius: 10px;
         }
 
-        /* Barra de busca */
         .search-container {
             display: flex;
             gap: 0.75rem;
@@ -221,7 +218,6 @@
             background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
         }
 
-        /* Alertas */
         .alert {
             border: none;
             border-radius: var(--border-radius);
@@ -243,7 +239,6 @@
             font-size: 1.5rem;
         }
 
-        /* Grid de produtos */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -251,7 +246,6 @@
             margin-top: 1.5rem;
         }
 
-        /* Card de produto */
         .product-card {
             background: white;
             border-radius: var(--border-radius);
@@ -371,7 +365,6 @@
             background: linear-gradient(to right, var(--primary-dark), var(--primary-color));
         }
 
-        /* Estados vazios */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -399,7 +392,6 @@
             color: var(--text-muted);
         }
 
-        /* Filtros adicionais */
         .filters-container {
             display: flex;
             gap: 1rem;
@@ -437,7 +429,6 @@
             box-shadow: 0 0 0 2px var(--primary-light);
         }
 
-        /* Badge de contador do carrinho - REMOVIDO */
         .cart-count-badge {
             display: none !important;
         }
@@ -455,7 +446,6 @@
             gap: 0.6rem;
         }
 
-        /* Ícone de Carrinho Flutuante */
         .cart-icon-floating {
             position: absolute;
             top: 1rem;
@@ -492,7 +482,6 @@
             animation: bounce 0.6s ease;
         }
 
-        /* Toast de notificação */
         .cart-toast {
             position: fixed;
             bottom: 20px;
@@ -536,7 +525,6 @@
             color: var(--text-muted);
         }
 
-        /* Animações */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -629,7 +617,6 @@
             animation: fadeInUp 0.6s ease;
         }
 
-        /* Responsividade */
         @media (max-width: 992px) {
             .page-header {
                 flex-direction: column;
@@ -698,7 +685,6 @@
             }
         }
 
-        /* Efeitos de loading */
         .skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
@@ -719,11 +705,9 @@
 </head>
 
 <body>
-    <!-- Navbar -->
     @include('partials.navbar')
 
     <div class="container">
-        <!-- Cabeçalho com busca -->
         <div class="page-header">
             <h1 class="page-title">Produtos</h1>
             <div class="search-container">
@@ -735,7 +719,6 @@
             </div>
         </div>
 
-        <!-- Filtros -->
         <div class="filters-container">
             <div class="filter-group">
                 <span class="filter-label">Categoria:</span>
@@ -757,7 +740,6 @@
             </div>
         </div>
 
-        <!-- Alertas -->
         @if(session('success'))
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -772,20 +754,14 @@
             </div>
         @endif
 
-        <!-- Grid de produtos -->
         <div class="products-grid" id="products-container">
             @foreach($produtos as $produto)
-                <div class="product-card" data-category="{{ $produto['categoria'] }}" data-price="{{ $produto['preco'] }}"
-                    data-popularity="{{ $produto['destaque'] ? 5 : 3 }}">
+                <div class="product-card" data-category="Geral" data-price="{{ $produto->preco }}" data-popularity="3">
                     <div class="product-image">
-                        <img src="{{ $produto['imagem'] }}" alt="{{ $produto['nome'] }}">
-                        @if($produto['destaque'])
-                            <div class="product-badge">Destaque</div>
-                        @endif
-                        <!-- FORMULÁRIO CORRETO PARA ADICIONAR AO CARRINHO -->
+                        <img src="{{ asset('storage/' . $produto->imagem) }}" alt="{{ $produto->nome }}">
                         <form action="{{ route('carrinho.adicionar') }}" method="POST" class="cart-form">
                             @csrf
-                            <input type="hidden" name="produto_id" value="{{ $produto['id'] }}">
+                            <input type="hidden" name="produto_id" value="{{ $produto->id }}">
                             <input type="hidden" name="quantidade" value="1">
                             <button type="submit" class="cart-icon-floating">
                                 <i class="fas fa-cart-plus"></i>
@@ -793,15 +769,15 @@
                         </form>
                     </div>
                     <div class="product-body">
-                        <h5 class="product-title">{{ $produto['nome'] }}</h5>
+                        <h5 class="product-title">{{ $produto->nome }}</h5>
                         <p class="product-category">
-                            <i class="fas fa-tag"></i> {{ $produto['categoria'] }}
+                            <i class="fas fa-tag"></i> Geral
                         </p>
                         <p class="product-price">
-                            <span class="price-currency">R$</span> {{ number_format($produto['preco'], 2, ',', '.') }}
+                            <span class="price-currency">R$</span> {{ number_format($produto->preco, 2, ',', '.') }}
                         </p>
                         <div class="product-action">
-                            <a href="{{ route('produtos.show', $produto['slug']) }}" class="btn-primary">
+                            <a href="{{ route('produtos.show', $produto->id) }}" class="btn-primary">
                                 <i class="fas fa-eye"></i> Ver detalhes
                             </a>
                         </div>
@@ -810,7 +786,6 @@
             @endforeach
         </div>
 
-        <!-- Estado vazio -->
         <div class="empty-state" id="empty-state">
             <i class="fas fa-box-open"></i>
             <h3>Nenhum produto encontrado</h3>
@@ -821,42 +796,34 @@
         </div>
     </div>
 
-    <!-- Footer -->
     @include('partials.footer')
 
     <script src="//code.jivosite.com/widget/1Qbb3wfMiV" async></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Função para adicionar produto ao carrinho (agora usando formulário)
         function addToCart(event, element) {
-            event.preventDefault(); // Previne o comportamento padrão do formulário
+            event.preventDefault();
 
             const form = element.closest('form');
             const productId = form.querySelector('input[name="produto_id"]').value;
             const productName = element.closest('.product-card').querySelector('.product-title').textContent;
 
-            // Animação de feedback visual
             element.classList.add('added');
             setTimeout(() => {
                 element.classList.remove('added');
             }, 1000);
 
-            // Mostrar notificação
             showToast('Produto adicionado!', `${productName} foi adicionado ao carrinho.`);
 
-            // Enviar o formulário - o contador será atualizado pelo backend via sessão
             form.submit();
         }
 
-        // Função para mostrar notificação toast
         function showToast(title, message) {
-            // Remover toast anterior se existir
             const existingToast = document.getElementById('cart-toast');
             if (existingToast) {
                 existingToast.remove();
             }
 
-            // Criar novo toast
             const toast = document.createElement('div');
             toast.id = 'cart-toast';
             toast.className = 'cart-toast';
@@ -870,12 +837,10 @@
 
             document.body.appendChild(toast);
 
-            // Mostrar toast
             setTimeout(() => {
                 toast.classList.add('show');
             }, 100);
 
-            // Esconder toast após 3 segundos
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => {
@@ -887,7 +852,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Script da Navbar - Destacar link ativo
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.nav-link-minimal');
 
@@ -902,7 +866,6 @@
                 });
             });
 
-            // Script dos Produtos
             const searchInput = document.querySelector('.search-input');
             const categoryFilter = document.getElementById('category-filter');
             const sortFilter = document.getElementById('sort-filter');
@@ -911,7 +874,6 @@
             const emptyState = document.getElementById('empty-state');
             const resetFiltersBtn = document.getElementById('reset-filters');
 
-            // Função para filtrar produtos
             function filterProducts() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const selectedCategory = categoryFilter.value;
@@ -919,14 +881,12 @@
 
                 let visibleProducts = 0;
 
-                // Filtrar produtos
                 productCards.forEach(card => {
                     const title = card.querySelector('.product-title').textContent.toLowerCase();
                     const category = card.getAttribute('data-category');
                     const price = parseFloat(card.getAttribute('data-price'));
                     const popularity = parseInt(card.getAttribute('data-popularity'));
 
-                    // Verificar se o produto corresponde aos critérios de busca e filtro
                     const matchesSearch = title.includes(searchTerm);
                     const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
 
@@ -938,7 +898,6 @@
                     }
                 });
 
-                // Ordenar produtos
                 if (sortBy !== 'recent') {
                     const visibleCards = Array.from(productCards).filter(card => card.style.display !== 'none');
 
@@ -960,13 +919,11 @@
                         }
                     });
 
-                    // Reordenar os produtos no DOM
                     visibleCards.forEach(card => {
                         productsContainer.appendChild(card);
                     });
                 }
 
-                // Mostrar ou esconder estado vazio
                 if (visibleProducts === 0) {
                     emptyState.style.display = 'block';
                 } else {
@@ -974,12 +931,10 @@
                 }
             }
 
-            // Event listeners
             searchInput.addEventListener('input', filterProducts);
             categoryFilter.addEventListener('change', filterProducts);
             sortFilter.addEventListener('change', filterProducts);
 
-            // Botão para limpar filtros
             resetFiltersBtn.addEventListener('click', function () {
                 searchInput.value = '';
                 categoryFilter.value = 'all';
@@ -987,23 +942,19 @@
                 filterProducts();
             });
 
-            // Inicializar animações de entrada em sequência
             const cards = document.querySelectorAll('.product-card');
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${0.1 + (index * 0.1)}s`;
             });
 
-            // Inicializar a filtragem
             filterProducts();
 
-            // Adicionar evento de clique para os botões "Ver detalhes"
             document.querySelectorAll('.cart-icon-floating').forEach(icon => {
                 icon.addEventListener('click', function (e) {
                     addToCart(e, this);
                 });
             });
 
-            // Adicionar evento de clique para os ícones do carrinho
             document.querySelectorAll('.cart-icon-floating').forEach(icon => {
                 icon.addEventListener('click', function (e) {
                     addToCart(e, this);

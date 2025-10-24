@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -225,6 +226,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -236,6 +238,7 @@
                 opacity: 0;
                 transform: translateX(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -243,8 +246,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Responsividade */
@@ -252,29 +260,38 @@
             body {
                 padding: 1rem;
             }
-            
+
             .login-container {
                 max-width: 100%;
             }
-            
-            .card-header, .card-body {
+
+            .card-header,
+            .card-body {
                 padding: 1.5rem;
             }
-            
-            .decoration-1, .decoration-2 {
+
+            .decoration-1,
+            .decoration-2 {
                 display: none;
             }
         }
 
         /* Efeitos de foco melhorados */
-        .form-control:focus + .input-icon {
+        .form-control:focus+.input-icon {
             color: var(--primary-dark);
             animation: bounce 0.5s ease;
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(-50%); }
-            50% { transform: translateY(-60%); }
+
+            0%,
+            100% {
+                transform: translateY(-50%);
+            }
+
+            50% {
+                transform: translateY(-60%);
+            }
         }
 
         /* Placeholder styling */
@@ -284,6 +301,7 @@
         }
     </style>
 </head>
+
 <body>
     <i class="fas fa-lock login-decoration decoration-1"></i>
     <i class="fas fa-key login-decoration decoration-2"></i>
@@ -299,19 +317,20 @@
                 <div class="alert alert-danger" id="errorAlert">
                     <ul id="errorList"></ul>
                 </div>
-                
+
                 <div class="alert alert-success" id="successAlert">
                     <span id="successMessage"></span>
                 </div>
-                
+
                 <!-- Formulário de login -->
                 <form id="loginForm" method="POST" action="{{ route('admin.login.post') }}">
                     @csrf
-                    
+
                     <div class="form-group">
                         <label for="email" class="form-label">E-mail</label>
                         <div class="input-group">
-                            <input type="email" id="email" name="email" class="form-control" placeholder="admin@email.com" required>
+                            <input type="email" id="email" name="email" class="form-control"
+                                placeholder="admin@email.com" required>
                             <i class="fas fa-envelope input-icon"></i>
                         </div>
                     </div>
@@ -319,7 +338,8 @@
                     <div class="form-group">
                         <label for="password" class="form-label">Senha</label>
                         <div class="input-group">
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Sua senha" required>
+                            <input type="password" id="password" name="password" class="form-control"
+                                placeholder="Sua senha" required>
                             <i class="fas fa-lock input-icon"></i>
                         </div>
                     </div>
@@ -339,7 +359,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const loginForm = document.getElementById('loginForm');
             const errorAlert = document.getElementById('errorAlert');
             const errorList = document.getElementById('errorList');
@@ -359,48 +379,48 @@
 
             // Adicionar interatividade aos inputs
             document.querySelectorAll('.form-control').forEach(input => {
-                input.addEventListener('blur', function() {
+                input.addEventListener('blur', function () {
                     if (this.value) {
                         this.classList.add('has-value');
                     } else {
                         this.classList.remove('has-value');
                     }
                 });
-                
-                input.addEventListener('focus', function() {
+
+                input.addEventListener('focus', function () {
                     this.parentElement.querySelector('.input-icon').style.animation = 'bounce 0.5s ease';
                 });
             });
 
             // Manipular envio do formulário
-            loginForm.addEventListener('submit', function(e) {
+            loginForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                
+
                 // Validar campos
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
                 const errors = [];
-                
+
                 if (!email) {
                     errors.push('O campo e-mail é obrigatório');
                 } else if (!isValidEmail(email)) {
                     errors.push('Por favor, insira um e-mail válido');
                 }
-                
+
                 if (!password) {
                     errors.push('O campo senha é obrigatório');
                 } else if (password.length < 6) {
                     errors.push('A senha deve ter pelo menos 6 caracteres');
                 }
-                
+
                 if (errors.length > 0) {
                     showError(errors);
                     return;
                 }
-                
+
                 // Mostrar loading e desabilitar botão
                 showLoading();
-                
+
                 // Enviar formulário via AJAX
                 fetch(this.action, {
                     method: 'POST',
@@ -410,25 +430,25 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showSuccess(data.message || 'Login realizado com sucesso!');
-                        // Redirecionar após sucesso
-                        setTimeout(() => {
-                            window.location.href = data.redirect || '{{ route("admin.dashboard") }}';
-                        }, 1500);
-                    } else {
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showSuccess(data.message || 'Login realizado com sucesso!');
+                            // Redirecionar após sucesso
+                            setTimeout(() => {
+                                window.location.href = data.redirect || '{{ route("admin.produtos") }}';
+                            }, 1500);
+                        } else {
+                            hideLoading();
+                            showError([data.message] || ['Erro ao realizar login']);
+                        }
+                    })
+                    .catch(error => {
                         hideLoading();
-                        showError([data.message] || ['Erro ao realizar login']);
-                    }
-                })
-                .catch(error => {
-                    hideLoading();
-                    console.error('Error:', error);
-                    // Se falhar o AJAX, submeter o formulário normalmente
-                    loginForm.submit();
-                });
+                        console.error('Error:', error);
+                        // Se falhar o AJAX, submeter o formulário normalmente
+                        loginForm.submit();
+                    });
             });
 
             function showError(errors) {
@@ -440,7 +460,7 @@
                 });
                 errorAlert.style.display = 'block';
                 successAlert.style.display = 'none';
-                
+
                 // Scroll para o alerta
                 errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -470,10 +490,11 @@
 
             // Preencher automaticamente para teste (remover em produção)
             @if(app()->environment('local'))
-            document.getElementById('email').value = 'admin@email.com';
-            document.getElementById('password').value = 'admin123';
+                document.getElementById('email').value = 'admin@email.com';
+                document.getElementById('password').value = 'admin123';
             @endif
         });
     </script>
 </body>
+
 </html>

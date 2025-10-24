@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $produto['nome'] }} - Sistema de Gestão</title>
+    <title>{{ $produto->nome }} - Sistema de Gestão</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -808,11 +808,10 @@
             <div class="product-main">
                 <!-- Imagem do produto -->
                 <div class="product-image-container">
-                    <img src="{{ $produto['imagem'] }}" 
-                         alt="{{ $produto['nome'] }}" class="product-image">
-                    @if($produto['destaque'])
-                    <div class="product-badge">Em Destaque</div>
-                    @endif
+                    <!-- CORREÇÃO AQUI: usando asset('storage/') -->
+                    <img src="{{ asset('storage/' . $produto->imagem) }}" 
+                         alt="{{ $produto->nome }}" class="product-image">
+                    <!-- REMOVIDO: badge de destaque já que não temos esse campo -->
                     <button class="image-zoom-btn" onclick="openModal()">
                         <i class="fas fa-expand"></i>
                     </button>
@@ -820,27 +819,27 @@
 
                 <!-- Informações do produto -->
                 <div class="product-info">
-                    <h1 class="product-title">{{ $produto['nome'] }}</h1>
+                    <h1 class="product-title">{{ $produto->nome }}</h1>
                     
                     <span class="product-category">
-                        <i class="fas fa-tag"></i> {{ $produto['categoria'] }}
+                        <i class="fas fa-tag"></i> Geral
                     </span>
 
                     <p class="product-description">
-                        {{ $produto['descricao'] }}
+                        {{ $produto->descricao }}
                     </p>
 
                     <div class="product-price-container">
                         <div class="product-price">
-                            <span class="price-currency">R$</span> {{ number_format($produto['preco'], 2, ',', '.') }}
+                            <span class="price-currency">R$</span> {{ number_format($produto->preco, 2, ',', '.') }}
                         </div>
-                        <span class="price-installment">ou 12x de R$ {{ number_format($produto['preco'] / 12, 2, ',', '.') }} sem juros</span>
+                        <span class="price-installment">ou 12x de R$ {{ number_format($produto->preco / 12, 2, ',', '.') }} sem juros</span>
                     </div>
 
                     <div class="product-actions">
                         <form action="{{ route('carrinho.adicionar') }}" method="POST" class="d-inline">
                             @csrf
-                            <input type="hidden" name="produto_id" value="{{ $produto['id'] }}">
+                            <input type="hidden" name="produto_id" value="{{ $produto->id }}">
                             <input type="hidden" name="quantidade" value="1">
                             <button type="submit" class="btn-success">
                                 <i class="fas fa-shopping-cart"></i>
@@ -1101,15 +1100,16 @@
             
             <div class="related-grid">
                 @foreach($relacionados as $relacionado)
-                <a href="{{ route('produtos.show', $relacionado['slug']) }}" class="related-card" style="animation-delay: {{ $loop->index * 0.1 }}s">
-                    <img src="{{ $relacionado['imagem'] }}" 
-                         alt="{{ $relacionado['nome'] }}" class="related-card-image">
+                <a href="{{ route('produtos.show', $relacionado->id) }}" class="related-card" style="animation-delay: {{ $loop->index * 0.1 }}s">
+                    <!-- CORREÇÃO AQUI: usando asset('storage/') para produtos relacionados -->
+                    <img src="{{ asset('storage/' . $relacionado->imagem) }}" 
+                         alt="{{ $relacionado->nome }}" class="related-card-image">
                     <div class="related-card-body">
-                        <h3 class="related-card-title">{{ $relacionado['nome'] }}</h3>
+                        <h3 class="related-card-title">{{ $relacionado->nome }}</h3>
                         <div class="product-category" style="font-size: 0.9rem; padding: 0.3rem 0.8rem;">
-                            <i class="fas fa-tag"></i> {{ $relacionado['categoria'] }}
+                            <i class="fas fa-tag"></i> Geral
                         </div>
-                        <div class="related-card-price">R$ {{ number_format($relacionado['preco'], 2, ',', '.') }}</div>
+                        <div class="related-card-price">R$ {{ number_format($relacionado->preco, 2, ',', '.') }}</div>
                     </div>
                 </a>
                 @endforeach
@@ -1121,7 +1121,8 @@
     <!-- Modal de zoom -->
     <div class="modal-overlay" id="imageModal" onclick="closeModal()">
         <div class="modal-content">
-            <img src="{{ $produto['imagem'] }}" alt="{{ $produto['nome'] }}">
+            <!-- CORREÇÃO AQUI: usando asset('storage/') no modal também -->
+            <img src="{{ asset('storage/' . $produto->imagem) }}" alt="{{ $produto->nome }}">
         </div>
     </div>
 
@@ -1193,7 +1194,7 @@
         // Adicionar evento de submit para mostrar toast
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {
-                const productName = '{{ $produto["nome"] }}';
+                const productName = '{{ $produto->nome }}';
                 showToast('Produto adicionado!', `${productName} foi adicionado ao carrinho.`);
             });
         });

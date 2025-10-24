@@ -59,7 +59,7 @@ class AuthController extends Controller
         if (Session::get('user')) {
             // Se já estiver logado, redirecionar conforme o tipo de usuário
             $user = Session::get('user');
-            return redirect()->intended($user['role'] === 'admin' ? route('admin.dashboard') : route('home'));
+            return redirect()->intended($user['role'] === 'admin' ? route('admin.produtos') : route('home'));
         }
 
         return view('pages.login');
@@ -92,7 +92,7 @@ class AuthController extends Controller
 
             // Redirecionar conforme o tipo de usuário
             if ($user['role'] === 'admin') {
-                return redirect()->intended(route('admin.dashboard'))
+                return redirect()->intended(route('admin.produtos'))
                     ->with('success', 'Login administrativo realizado com sucesso!');
             }
 

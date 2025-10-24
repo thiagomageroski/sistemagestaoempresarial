@@ -4,104 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use App\Models\Produto;
 
 class CarrinhoController extends Controller
 {
-    private function produtos()
-    {
-        return [
-            [
-                'id' => 1,
-                'slug' => 'fone-ouvido-premium',
-                'nome' => 'Fone de Ouvido Premium com Cancelamento de Ruído',
-                'preco' => 599.90,
-                'categoria' => 'Áudio',
-                'descricao' => 'Fone de ouvido premium com cancelamento de ruído ativo, bateria de 30 horas.',
-                'imagem' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-                'destaque' => true,
-                'estoque' => 15
-            ],
-            [
-                'id' => 2,
-                'slug' => 'smartwatch-inteligente',
-                'nome' => 'Smartwatch Inteligente com Monitor Cardíaco',
-                'preco' => 399.90,
-                'categoria' => 'Wearables',
-                'descricao' => 'Smartwatch com monitor cardíaco, GPS e bateria de 7 dias.',
-                'imagem' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-                'destaque' => true,
-                'estoque' => 20
-            ],
-            [
-                'id' => 3,
-                'slug' => 'caixa-som-bluetooth',
-                'nome' => 'Caixa de Som Bluetooth à Prova D\'água',
-                'preco' => 299.90,
-                'categoria' => 'Áudio',
-                'descricao' => 'Caixa de som Bluetooth à prova d\'água com 20 horas de bateria.',
-                'imagem' => 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-                'destaque' => false,
-                'estoque' => 25
-            ],
-            [
-                'id' => 4,
-                'slug' => 'notebook-ultrafino',
-                'nome' => 'Notebook Ultrafino 15.6" 16GB RAM',
-                'preco' => 4299.90,
-                'categoria' => 'Computadores',
-                'descricao' => 'Notebook ultrafino com 16GB RAM, SSD 512GB e processador Intel i7.',
-                'imagem' => 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-                'destaque' => true,
-                'estoque' => 10
-            ],
-            [
-                'id' => 5,
-                'slug' => 'teclado-mecanico-rgb',
-                'nome' => 'Teclado Mecânico RGB Switch Azul',
-                'preco' => 499.90,
-                'categoria' => 'Periféricos',
-                'descricao' => 'Teclado mecânico RGB com switches Blue e construção em alumínio.',
-                'imagem' => 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-                'destaque' => false,
-                'estoque' => 30
-            ],
-            [
-                'id' => 6,
-                'slug' => 'headphone-gaming',
-                'nome' => 'Headphone Gaming 7.1 Surround Sound',
-                'preco' => 349.90,
-                'categoria' => 'Gaming',
-                'descricao' => 'Headphone gaming com som surround 7.1 e microfone integrado.',
-                'imagem' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-                'destaque' => false,
-                'estoque' => 18
-            ],
-            [
-                'id' => 7,
-                'slug' => 'smartphone-premium',
-                'nome' => 'Smartphone Premium 256GB Câmera Tripla 108MP',
-                'preco' => 2899.90,
-                'categoria' => 'Smartphones',
-                'descricao' => 'Smartphone premium com câmera tripla de 108MP e 256GB de armazenamento.',
-                'imagem' => 'https://images.unsplash.com/photo-1708622366440-5ac82d30da10?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                'destaque' => true,
-                'estoque' => 12
-            ],
-            [
-                'id' => 8,
-                'slug' => 'tablet-premium',
-                'nome' => 'Tablet Premium 10.9" 256GB com Caneta Stylus',
-                'preco' => 1899.90,
-                'categoria' => 'Tablets',
-                'descricao' => 'Tablet premium com caneta stylus e 256GB de armazenamento.',
-                'imagem' => 'https://images.unsplash.com/photo-1561154464-82e9adf32764?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-                'destaque' => false,
-                'estoque' => 8
-            ]
-        ];
-    }
-
-    // Função para calcular o total de itens no carrinho
     private function calculateItemCount($carrinho)
     {
         if (!is_array($carrinho) || empty($carrinho)) {
@@ -117,7 +23,6 @@ class CarrinhoController extends Controller
         return $count;
     }
 
-    // Função para atualizar a contagem de itens na sessão
     private function updateCartCount($carrinho)
     {
         $itemCount = $this->calculateItemCount($carrinho);
@@ -135,7 +40,6 @@ class CarrinhoController extends Controller
         $carrinho = Session::get('carrinho', []);
         $total = $this->calculateTotal($carrinho);
 
-        // Atualizar a contagem de itens
         $this->updateCartCount($carrinho);
 
         return view('pages.carrinho', compact('carrinho', 'total'));
@@ -156,27 +60,28 @@ class CarrinhoController extends Controller
             }
 
             $request->validate([
-                'produto_id' => 'required|integer|min:1|max:8',
+                'produto_id' => 'required|integer|min:1',
                 'quantidade' => 'required|integer|min:1'
             ]);
 
             $produtoId = $request->input('produto_id');
             $carrinho = Session::get('carrinho', []);
 
-            $produtos = $this->produtos();
-            $produto = collect($produtos)->firstWhere('id', $produtoId);
+            $produto = Produto::find($produtoId);
 
             if (!$produto) {
                 throw new \Exception('Produto não encontrado');
             }
 
+            $estoque = 100;
+
             $produtoData = [
-                'id' => $produto['id'],
-                'nome' => $produto['nome'],
-                'preco' => floatval($produto['preco']),
+                'id' => $produto->id,
+                'nome' => $produto->nome,
+                'preco' => floatval($produto->preco),
                 'quantidade' => intval($request->input('quantidade', 1)),
-                'imagem' => $produto['imagem'],
-                'slug' => $produto['slug']
+                'imagem' => $produto->imagem,
+                'estoque' => $estoque
             ];
 
             if (isset($carrinho[$produtoId])) {
@@ -187,10 +92,8 @@ class CarrinhoController extends Controller
 
             Session::put('carrinho', $carrinho);
             
-            // Atualizar a contagem de itens na sessão
             $itemCount = $this->updateCartCount($carrinho);
 
-            // Se for requisição AJAX (do JavaScript), retorna JSON
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
@@ -199,13 +102,11 @@ class CarrinhoController extends Controller
                 ]);
             }
 
-            // Se for requisição normal de formulário, redireciona
             return redirect()->back()
-                ->with('success', '')
+                ->with('success', 'Produto adicionado ao carrinho!')
                 ->with('carrinho_count', $itemCount);
 
         } catch (\Exception $e) {
-            // Se for requisição AJAX, retorna JSON de erro
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -213,7 +114,6 @@ class CarrinhoController extends Controller
                 ], 500);
             }
             
-            // Se for requisição normal, redireciona com erro
             return redirect()->back()
                 ->with('error', 'Erro ao adicionar produto ao carrinho: ' . $e->getMessage());
         }
@@ -286,6 +186,26 @@ class CarrinhoController extends Controller
                 ], 404);
             }
 
+            // Buscar produto no BANCO DE DADOS para verificar se ainda existe
+            $produto = Produto::find($produtoId);
+
+            if (!$produto) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Produto não encontrado!'
+                ], 404);
+            }
+
+            // Como não temos estoque, vamos usar um valor padrão
+            $estoque = 100; // Valor padrão
+
+            if ($request->quantidade > $estoque) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Estoque insuficiente. Disponível: ' . $estoque
+                ], 400);
+            }
+
             $carrinho[$produtoId]['quantidade'] = intval($request->input('quantidade'));
             
             Session::put('carrinho', $carrinho);
@@ -305,6 +225,82 @@ class CarrinhoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erro ao atualizar quantidade do produto!'
+            ], 500);
+        }
+    }
+
+    public function limpar()
+    {
+        try {
+            if (!Session::get('user')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sessão expirada. Faça login novamente.'
+                ], 401);
+            }
+
+            // Limpar carrinho
+            Session::forget('carrinho');
+            Session::put('carrinho_count', 0);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Carrinho limpo com sucesso!',
+                'itemCount' => 0
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao limpar carrinho!'
+            ], 500);
+        }
+    }
+
+    public function quantidade()
+    {
+        $carrinho = Session::get('carrinho', []);
+        $itemCount = $this->calculateItemCount($carrinho);
+        
+        return response()->json([
+            'success' => true,
+            'quantidade' => $itemCount
+        ]);
+    }
+
+    public function verificarEstoque()
+    {
+        try {
+            $carrinho = Session::get('carrinho', []);
+            $estoqueInsuficiente = [];
+
+            foreach ($carrinho as $produtoId => $item) {
+                // Buscar produto no BANCO DE DADOS
+                $produto = Produto::find($produtoId);
+                
+                if (!$produto) {
+                    $estoqueInsuficiente[] = "Produto {$item['nome']} não encontrado";
+                    continue;
+                }
+
+                // Como não temos estoque, vamos usar um valor padrão
+                $estoque = 100; // Valor padrão
+
+                if ($item['quantidade'] > $estoque) {
+                    $estoqueInsuficiente[] = "{$item['nome']} (estoque: {$estoque}, solicitado: {$item['quantidade']})";
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'estoqueInsuficiente' => $estoqueInsuficiente,
+                'temEstoque' => empty($estoqueInsuficiente)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao verificar estoque!'
             ], 500);
         }
     }

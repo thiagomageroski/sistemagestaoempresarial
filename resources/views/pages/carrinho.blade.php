@@ -538,7 +538,8 @@
                 @if(count($carrinho) > 0)
                     @foreach($carrinho as $item)
                         <div class="cart-item-modern" data-item-id="{{ $item['id'] }}" id="cartItem-{{ $item['id'] }}">
-                            <img src="{{ $item['imagem'] }}" alt="{{ $item['nome'] }}" class="item-image-modern">
+                            <img src="{{ asset('storage/' . $item['imagem']) }}" alt="{{ $item['nome'] }}"
+                                class="item-image-modern">
                             <div class="item-details-modern">
                                 <h3 class="item-name-modern">{{ $item['nome'] }}</h3>
                                 <div class="item-price-modern">

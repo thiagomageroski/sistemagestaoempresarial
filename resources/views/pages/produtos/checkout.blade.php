@@ -1097,7 +1097,7 @@
                                     @foreach($carrinho as $item)
                                         <div class="cart-item">
                                             <div class="item-image">
-                                                <img src="{{ $item['imagem'] }}" alt="{{ $item['nome'] }}">
+                                                <img src="{{ asset('storage/' . $item['imagem']) }}" alt="{{ $item['nome'] }}">
                                             </div>
                                             <div class="item-details">
                                                 <div class="item-name">{{ $item['nome'] }}</div>
