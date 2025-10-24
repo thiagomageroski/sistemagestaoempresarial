@@ -45,3 +45,48 @@ if ($cliente) {
         'uf' => $request->estado
     ]);
 }
+
+IMPLEMENTAÇÃO CRIAÇÃO DE PRODUTOS NO /ADMIN (AdminController.php, admin.blade.php, ProdutoController.php, CarrinhoController.php, CheckoutController.php, web.php) = https://www.youtube.com/watch?v=UF3bUQAIXu4, https://www.youtube.com/watch?v=ZQJdYM1m4q0, https://www.youtube.com/shorts/GdZsi9qqSME
+
+FUNÇÕES PRINCIPAIS:
+
+## AdminController.php
+## Salva o produto criado no banco de dados:
+
+Produto::create([
+    'nome' => $request->nome,
+    'descricao' => $request->descricao,
+    'preco' => $request->preco,
+    'imagem' => $imagemPath
+]);
+
+## CheckoutController.php
+## Processa/atualiza o Cliente no no método processarPedido()
+
+$cliente->update([...]);
+
+$cliente = Cliente::create([...]);
+
+## AdminController.php
+## salvarProduto() metodo principal para criaçao de produtos
+
+public function salvarProduto(Request $request)
+{
+    $request->validate([
+        'nome' => 'required',
+        'descricao' => 'required',
+        'preco' => 'required|numeric',
+        'imagem' => 'required|image'
+    ]);
+
+    $imagemPath = $request->file('imagem')->store('products', 'public');
+
+    Produto::create([
+        'nome' => $request->nome,
+        'descricao' => $request->descricao,
+        'preco' => $request->preco,
+        'imagem' => $imagemPath
+    ]);
+
+    return redirect()->route('produtos.index')->with('success', 'Produto cadastrado!');
+}
