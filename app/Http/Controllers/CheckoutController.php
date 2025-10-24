@@ -50,7 +50,6 @@ class CheckoutController extends Controller
         $semEstoque = [];
 
         foreach ($carrinho as $itemId => $item) {
-
             $produto = Produto::find($itemId);
 
             if (!$produto) {
@@ -116,6 +115,32 @@ class CheckoutController extends Controller
 
         try {
             Log::info('Iniciando processamento do pedido para: ' . $request->email);
+
+            // SALVAR/ATUALIZAR CLIENTE NO BANCO DE DADOS
+            $cliente = Cliente::where('email', $user['email'])->first();
+
+            if ($cliente) {
+                // Atualizar cliente existente
+                $cliente->update([
+                    'nome' => $request->nome_completo,
+                    'cep' => $request->cep,
+                    'logradouro' => $request->endereco,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                    'uf' => $request->estado
+                ]);
+            } else {
+                // Criar novo cliente
+                $cliente = Cliente::create([
+                    'nome' => $request->nome_completo,
+                    'email' => $user['email'],
+                    'cep' => $request->cep,
+                    'logradouro' => $request->endereco,
+                    'bairro' => $request->bairro,
+                    'cidade' => $request->cidade,
+                    'uf' => $request->estado
+                ]);
+            }
 
             $subtotal = 0;
             foreach ($carrinho as $item) {
@@ -214,9 +239,6 @@ class CheckoutController extends Controller
         }
     }
 
-    /**
-     * Carrega pedidos do arquivo JSON
-     */
     private function carregarPedidosArquivo()
     {
         try {
@@ -245,14 +267,10 @@ class CheckoutController extends Controller
         }
     }
 
-    /**
-     * Exibe a página de confirmação de pedido com opção de pagamento PIX
-     */
     public function confirmacao($id)
     {
         $user = Session::get('user');
 
-        // Buscar pedido na sessão e no arquivo
         $pedidosSessao = Session::get('pedidos', []);
         $pedidosArquivo = $this->carregarPedidosArquivo();
         $pedidos = array_merge($pedidosSessao, $pedidosArquivo);
@@ -263,7 +281,6 @@ class CheckoutController extends Controller
 
         $pedido = $pedidos[$id];
 
-        // Se o método de pagamento for PIX e ainda estiver aguardando, gerar QR Code
         if ($pedido['metodo_pagamento'] === 'pix' && $pedido['status'] === 'aguardando_pagamento') {
             $qrCodeUrl = $this->gerarQrCodePix($pedido['numero'], $pedido['total']);
             $pixCode = $this->gerarCodigoPix($pedido['numero'], $pedido['total']);
@@ -273,9 +290,6 @@ class CheckoutController extends Controller
         return view('pages.produtos.confirmacao', compact('pedido', 'user'));
     }
 
-    /**
-     * Gera um QR Code PIX fake usando API de placeholder
-     */
     private function gerarQrCodePix($numeroPedido, $valor)
     {
         $valorFormatado = number_format($valor, 2, '', '');
@@ -283,18 +297,12 @@ class CheckoutController extends Controller
         return "https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=" . urlencode($textoQrCode);
     }
 
-    /**
-     * Gera um código PIX fake (copiável)
-     */
     private function gerarCodigoPix($numeroPedido, $valor)
     {
         $valorFormatado = number_format($valor, 2, '', '');
         return "00020126580014BR.GOV.BCB.PIX0136cobranca{$valorFormatado}{$numeroPedido}5204000053039865406{$valorFormatado}5802BR5901{$numeroPedido}6008Sao Paulo62070503***6304" . strtoupper(substr(md5($numeroPedido), 0, 4));
     }
 
-    /**
-     * Atualiza o status do pagamento (para simulação)
-     */
     public function atualizarStatusPagamento($id)
     {
         $pedidos = Session::get('pedidos', []);
@@ -318,9 +326,6 @@ class CheckoutController extends Controller
         ], 404);
     }
 
-    /**
-     * Aplica cupom de desconto
-     */
     public function aplicarCupom(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -346,7 +351,6 @@ class CheckoutController extends Controller
         session()->put('desconto', $desconto);
         session()->put('cupom_aplicado', $request->codigo_cupom);
 
-        // Recalcular totais
         $carrinho = session()->get('carrinho', []);
         $subtotal = 0;
         foreach ($carrinho as $item) {
@@ -372,9 +376,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    /**
-     * Remove cupom de desconto
-     */
     public function removerCupom()
     {
         $cupomAplicado = session()->get('cupom_aplicado');
@@ -406,9 +407,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    /**
-     * Valida um cupom de desconto (simulação)
-     */
     private function validarCupom($codigo)
     {
         $cuponsValidos = [
@@ -421,9 +419,6 @@ class CheckoutController extends Controller
         return array_key_exists(strtoupper($codigo), $cuponsValidos);
     }
 
-    /**
-     * Calcula o valor do desconto baseado no cupom
-     */
     private function calcularDescontoCupom($codigo)
     {
         $cupons = [
@@ -436,9 +431,6 @@ class CheckoutController extends Controller
         return $cupons[strtoupper($codigo)] ?? 0.00;
     }
 
-    /**
-     * Calcula frete baseado no CEP
-     */
     public function calcularFrete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -450,16 +442,14 @@ class CheckoutController extends Controller
         }
 
         $cep = preg_replace('/[^0-9]/', '', $request->cep);
-        $frete = 15.90; // Valor padrão
+        $frete = 15.90;
 
-        // Lógica simples de cálculo de frete
         if (strpos($cep, '01000') === 0) {
             $frete = 12.90;
         } elseif (strpos($cep, '10000') === 0) {
             $frete = 18.90;
         }
 
-        // Verificar se há cupom de frete grátis
         $cupomAplicado = session()->get('cupom_aplicado');
         if ($cupomAplicado && strtoupper($cupomAplicado) === 'FRETEGRATIS') {
             $frete = 0.00;
@@ -467,7 +457,6 @@ class CheckoutController extends Controller
 
         session()->put('frete', $frete);
 
-        // Recalcular totais
         $carrinho = session()->get('carrinho', []);
         $subtotal = 0;
         foreach ($carrinho as $item) {
@@ -487,9 +476,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    /**
-     * Lista de pedidos do usuário
-     */
     public function meusPedidos()
     {
         if (!Session::get('user')) {
@@ -501,7 +487,6 @@ class CheckoutController extends Controller
         $pedidosArquivo = $this->carregarPedidosArquivo();
         $todosPedidos = array_merge($pedidosSessao, $pedidosArquivo);
 
-        // Filtrar pedidos por email do usuário
         $minhasCompras = [];
         foreach ($todosPedidos as $pedido) {
             if (isset($pedido['cliente']['email']) && $pedido['cliente']['email'] === $user['email']) {
@@ -509,7 +494,6 @@ class CheckoutController extends Controller
             }
         }
 
-        // Ordenar por data (mais recente primeiro)
         usort($minhasCompras, function ($a, $b) {
             $dataA = isset($a['data']) ? strtotime(str_replace('/', '-', $a['data'])) : 0;
             $dataB = isset($b['data']) ? strtotime(str_replace('/', '-', $b['data'])) : 0;
@@ -522,9 +506,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    /**
-     * Detalhes de um pedido específico
-     */
     public function detalhesPedido($id)
     {
         if (!Session::get('user')) {
@@ -542,7 +523,6 @@ class CheckoutController extends Controller
 
         $pedido = $todosPedidos[$id];
 
-        // Verificar se o pedido pertence ao usuário
         if (!isset($pedido['cliente']['email']) || $pedido['cliente']['email'] !== $user['email']) {
             return redirect()->route('minhas.compras')->with('error', 'Você não tem permissão para visualizar este pedido!');
         }
@@ -550,9 +530,6 @@ class CheckoutController extends Controller
         return view('pages.produtos.detalhes-compra', compact('pedido', 'user'));
     }
 
-    /**
-     * Filtra pedidos por critérios específicos
-     */
     public function filtrar(Request $request)
     {
         if (!Session::get('user')) {
@@ -566,7 +543,6 @@ class CheckoutController extends Controller
         $pedidosArquivo = $this->carregarPedidosArquivo();
         $todosPedidos = array_merge($pedidosSessao, $pedidosArquivo);
 
-        // Filtrar pedidos por email do usuário
         $minhasCompras = [];
         foreach ($todosPedidos as $pedido) {
             if (isset($pedido['cliente']['email']) && $pedido['cliente']['email'] === $user['email']) {
@@ -574,7 +550,6 @@ class CheckoutController extends Controller
             }
         }
 
-        // Aplicar filtro
         switch ($filtro) {
             case 'recentes':
                 usort($minhasCompras, function ($a, $b) {
