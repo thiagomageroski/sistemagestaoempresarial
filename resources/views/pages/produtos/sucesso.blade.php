@@ -392,7 +392,7 @@
                                 @foreach($ultimoPedido['itens'] as $item)
                                     <div class="product-item">
                                         <div class="product-image">
-                                            <img src="{{ $item['imagem'] }}" alt="{{ $item['nome'] }}">
+                                            <img src="{{ asset('storage/' . $item['imagem']) }}" alt="{{ $item['nome'] }}">
                                         </div>
                                         <div class="product-info">
                                             <div class="product-name">{{ $item['nome'] }}</div>
